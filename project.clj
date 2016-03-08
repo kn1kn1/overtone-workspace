@@ -5,6 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [quil "2.3.0"]
+                 ;; following dependencies are taken from overtone's project.clj
                  [org.clojure/data.json "0.2.3"]
                  [clj-native "0.9.3"]
                  [overtone/at-at "1.2.0"]
