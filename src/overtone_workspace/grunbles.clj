@@ -39,3 +39,9 @@
 
 ;;(player (metro) [])
 ;;(stop)
+
+(def dirty-kick (freesound 777))
+(dirty-kick)
+(def kick (sample (freesound-path 2086)))
+(kick)
+(def close-hihat (sample-player (sample (freesound-path 802))))
