@@ -11,12 +11,31 @@
     (pan2 snd (sin-osc:kr 1))))
 
 
-(grumble :freq-mul 0.5)
-(grumble :freq-mul 0.75)
-(grumble :freq-mul 1)
-(grumble :freq-mul 1.5)
-(grumble :freq-mul 2)
-
-(ctl grumble :speed 3000)
+;; (grumble :freq-mul 0.5)
+;; (grumble :freq-mul 0.75)
+;; (grumble :freq-mul 1)
+;; (grumble :freq-mul 1.5)
+;; (grumble :freq-mul 2)
+;; (ctl grumble :speed 3000)
 
 (volume (/  32  127))
+
+(def metro (metronome 10))
+
+(defn player [beat notes]
+  (let [notes (if (empty? notes)
+                [4 8 2 1.5]
+                notes)]
+    (at (metro beat)
+        (grumble :freq-mul 0.25))
+    (at (metro beat)
+        (if (zero? (mod beat 5))
+          (grumble :freq-mul 1)))
+    (at (metro (+ 0.5 beat))
+        (if (zero? (mod beat 6))
+          (grumble :freq-mul (choose notes))))
+    (apply-by (metro (inc beat)) #'player (inc beat) (next notes) [])
+    ))
+
+;;(player (metro) [])
+;;(stop)
