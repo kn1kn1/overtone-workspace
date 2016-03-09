@@ -18,7 +18,7 @@
 ;; (grumble :freq-mul 2)
 ;; (ctl grumble :speed 3000)
 
-(volume (/  32  127))
+(volume (/  20  127))
 
 (def metro (metronome 10))
 
@@ -27,7 +27,7 @@
                 [4 8 2 1.5]
                 notes)]
     (at (metro beat)
-        (grumble :freq-mul 0.25))
+        (grumble :freq-mul 0.5))
     (at (metro beat)
         (if (zero? (mod beat 5))
           (grumble :freq-mul 1)))
@@ -40,8 +40,8 @@
 ;;(player (metro) [])
 ;;(stop)
 
-(def dirty-kick (freesound 777))
-(dirty-kick)
-(def kick (sample (freesound-path 2086)))
-(kick)
-(def close-hihat (sample-player (sample (freesound-path 802))))
+;; (def dirty-kick (freesound 777))
+;; (dirty-kick)
+;; (def kick (sample (freesound-path 2086)))
+;; (kick)
+;; (def close-hihat (sample-player (sample (freesound-path 802))))
