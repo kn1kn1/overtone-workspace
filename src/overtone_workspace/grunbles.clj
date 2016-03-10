@@ -4,11 +4,11 @@
 ;; Inspired by an example in an early chapter of the SuperCollider book
 
 (definst grumble [speed 6 freq-mul 1]
-  (let [snd (mix (map #(* (lf-tri (* % freq-mul 100))
+  (let [snd (mix (map #(* (lf-saw (* % freq-mul 100))
                           (max 0 (+ (lf-noise1:kr speed)
                                     (env-gen (perc 20 100) :action FREE))))
                       [1 (/ 2 3) (/ 3 2) 2]))]
-    (pan2 snd (sin-osc:kr 1))))
+    (pan2 snd (sin-osc:kr 0.125))))
 
 ;;(stop)
 ;; (grumble)
@@ -19,7 +19,7 @@
 ;; (grumble :freq-mul 2)
 ;; (ctl grumble :speed 3000)
 
-(volume (/  20  127))
+(volume (/  8  127))
 
 (def metro (metronome 10))
 
