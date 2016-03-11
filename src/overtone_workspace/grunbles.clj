@@ -27,8 +27,7 @@
   (let [rates (if (empty? rates)
                 [4 6 2 2 1.5 1.5]
                 rates)
-        bpm (metro :bpm)
-        dur (/ 60.0 bpm)
+        dur (/ 60.0 (metro :bpm))
         attack (* dur 4) ; 1bar
         rel (* dur (* 4 7))]  ; 7bars
     (at (metro beat)
@@ -37,10 +36,10 @@
           (if (zero? (mod beat 8)) (grumble :freq-mul 1 :attack attack :release rel))
           (if (zero? (mod beat 16)) (grumble :freq-mul (choose rates) :attack attack :release rel))
           ))
-    (apply-by (metro (inc beat)) #'player (inc beat) (next rates) [])
+    (apply-by (metro (inc beat)) #'player (inc beat) rates [])
     ))
 
-;;(player (metro) [])
+(player (metro) [])
 ;;(stop)
 
 ;; (def dirty-kick (freesound 777))
