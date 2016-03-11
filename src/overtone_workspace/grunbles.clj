@@ -4,7 +4,7 @@
 ;; Inspired by an example in an early chapter of the SuperCollider book
 
 (definst grumble [speed 6 freq-mul 1 attack 10 release 50]
-  (let [snd (mix (map #(* (lf-tri (* % freq-mul 100))
+  (let [snd (mix (map #(* (lf-saw (* % freq-mul 100))
                           (max 0 (+ (lf-noise1:kr speed)
                                     (env-gen (perc attack release) :action FREE))))
                       [1 (/ 2 3) (/ 3 2) 2]))]
@@ -25,7 +25,7 @@
 
 (defn player [beat rates]
   (let [rates (if (empty? rates)
-                [4 8 2 2 1.5 1.5]
+                [4 6 2 2 1.5 1.5]
                 rates)
         bpm (metro :bpm)
         dur (/ 60.0 bpm)
@@ -35,8 +35,7 @@
         (do
           (if (zero? (mod beat 8)) (grumble :freq-mul 0.5 :attack attack :release rel))
           (if (zero? (mod beat 8)) (grumble :freq-mul 1 :attack attack :release rel))
-          (if (zero? (mod beat 16))
-            (grumble :freq-mul (choose rates) :attack attack :release rel))
+          (if (zero? (mod beat 16)) (grumble :freq-mul (choose rates) :attack attack :release rel))
           ))
     (apply-by (metro (inc beat)) #'player (inc beat) (next rates) [])
     ))
