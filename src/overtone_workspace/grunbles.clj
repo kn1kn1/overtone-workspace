@@ -4,11 +4,11 @@
 ;; Inspired by an example in an early chapter of the SuperCollider book
 
 (definst grumble [freq 440 freq-mul 1 speed 6 attack 10 release 50]
-  (let [snd (mix (map #(* (lf-tri (* % freq-mul freq))
+  (let [snd (mix (map #(* (saw (* % freq-mul freq))
                           (max 0 (+ (lf-noise1:kr speed)
                                     (env-gen (perc attack release) :action FREE))))
                       [1 (/ 2 3) (/ 3 2) 2]))]
-    (pan2 snd (sin-osc:kr 1))))
+    (pan2 snd (sin-osc:kr 50))))
 
 ;;(stop)
 ;; (grumble)
