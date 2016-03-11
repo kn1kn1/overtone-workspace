@@ -25,7 +25,7 @@
 
 (defn player [beat rates]
   (let [rates (if (empty? rates)
-                [4 6 2 2 1.5 1.5]
+                [2 1.5 1.5 0.75 0.75 1]
                 rates)
         dur (/ 60.0 (metro :bpm))
         attack (* dur 4) ; 1bar
@@ -34,7 +34,7 @@
         (do
           (if (zero? (mod beat 8)) (grumble :freq-mul 0.5 :attack attack :release rel))
           (if (zero? (mod beat 16)) (grumble :freq-mul 1 :attack attack :release rel))
-          (if (zero? (mod beat 32)) (grumble :freq-mul (choose rates) :attack attack :release rel))
+          (if (zero? (mod beat 64)) (grumble :freq-mul (choose rates) :attack attack :release rel))
           ))
     (apply-by (metro (inc beat)) #'player (inc beat) rates [])
     ))
