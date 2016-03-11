@@ -4,7 +4,7 @@
 ;; Inspired by an example in an early chapter of the SuperCollider book
 
 (definst grumble [speed 6 freq-mul 1]
-  (let [snd (mix (map #(* (lf-saw (* % freq-mul 100))
+  (let [snd (mix (map #(* (lf-tri (* % freq-mul 100))
                           (max 0 (+ (lf-noise1:kr speed)
                                     (env-gen (perc 20 100) :action FREE))))
                       [1 (/ 2 3) (/ 3 2) 2]))]
@@ -19,21 +19,21 @@
 ;; (grumble :freq-mul 2)
 ;; (ctl grumble :speed 3000)
 
-(volume (/  8  127))
+(volume (/  4  127))
 
-(def metro (metronome 10))
+(def metro (metronome 128))
 
 (defn player [beat notes]
   (let [notes (if (empty? notes)
                 [4 8 2 1.5]
                 notes)]
     (at (metro beat)
-        (grumble :freq-mul 0.5))
-    (at (metro beat)
-        (if (zero? (mod beat 5))
-          (grumble :freq-mul 1)))
+        (do
+          (if (zero? (mod beat 8)) (grumble :freq-mul 0.5))
+          (if (zero? (mod beat 8)) (grumble :freq-mul 1))
+          ))
     (at (metro (+ 0.5 beat))
-        (if (zero? (mod beat 6))
+        (if (zero? (mod beat 16))
           (grumble :freq-mul (choose notes))))
     (apply-by (metro (inc beat)) #'player (inc beat) (next notes) [])
     ))
