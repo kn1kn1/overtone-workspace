@@ -8,7 +8,7 @@
                           (max 0 (+ (lf-noise1:kr speed)
                                     (env-gen (perc attack release) :action FREE))))
                       [1 (/ 2 3) (/ 3 2) 2]))]
-    (pan2 snd (sin-osc:kr 0.125))))
+    (pan2 snd (sin-osc:kr 1))))
 
 ;;(stop)
 ;; (grumble)
@@ -29,12 +29,12 @@
                 rates)
         dur (/ 60.0 (metro :bpm))
         attack (* dur 4) ; 1bar
-        rel (* dur (* 4 7))]  ; 7bars
+        rel (* dur (* 4 15))]  ; 15bars
     (at (metro beat)
         (do
           (if (zero? (mod beat 8)) (grumble :freq-mul 0.5 :attack attack :release rel))
-          (if (zero? (mod beat 8)) (grumble :freq-mul 1 :attack attack :release rel))
-          (if (zero? (mod beat 16)) (grumble :freq-mul (choose rates) :attack attack :release rel))
+          (if (zero? (mod beat 16)) (grumble :freq-mul 1 :attack attack :release rel))
+          (if (zero? (mod beat 32)) (grumble :freq-mul (choose rates) :attack attack :release rel))
           ))
     (apply-by (metro (inc beat)) #'player (inc beat) rates [])
     ))
