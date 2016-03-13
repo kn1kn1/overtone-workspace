@@ -3,12 +3,12 @@
 
 ;; Inspired by an example in an early chapter of the SuperCollider book
 
-(definst grumble [freq 440 freq-mul 1 speed 1 attack 10 release 50]
-  (let [snd (mix (map #(* (saw (* % freq-mul freq))
+(definst grumble [freq 440 freq-mul 1 speed 10 attack 10 release 50]
+  (let [snd (mix (map #(* (lf-cub (* % freq-mul freq))
                           (max 0 (+ (lf-noise1:kr speed)
                                     (env-gen (perc attack release) :action FREE))))
                       [1 (/ 2 3) (/ 3 2) 2]))]
-    (pan2 snd (sin-osc:kr 32))))
+    (pan2 snd (sin-osc:kr 16))))
 
 ;;(stop)
 ;; (grumble)
@@ -28,7 +28,7 @@
   (let [rates (if (empty? rates)
                 [5 4 3 3 2 2 1.5 1.5 0.75 0.75 0.5]
                 rates)
-        freq (midi->hz (+ (note :C3) 5))
+        freq (midi->hz (+ (note :C3) -1))
         dur (/ 60.0 (metro :bpm))
         attack (* dur 4) ; 1bar
         rel (* dur (* 4 15))]  ; 15bars
