@@ -11,19 +11,19 @@
 (def circle-num 10)
 
 (defn setup []
-  (q/frame-rate 10)
+  (q/frame-rate 30)
   {:vol 0
    :bgcolour 0
    :radius 10})
 
 (defn update-state [state]
                                         ;  (q/exit)
-  ;(q/frame-rate 10)
+  ;(q/frame-rate 30)
   (let
     [vol (voltap/monitor-vol)
      vol3000 (voltap/monitor-vol sound-in-synth3000)]
     {:vol vol
-     :bgcolour (* 2 (* 10 vol))
+     :bgcolour (* 10 (* 10 vol))
      :radius (+ 10 (* 10000 vol3000))}))
 
 (defn draw-state [state]

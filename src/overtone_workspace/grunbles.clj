@@ -26,7 +26,7 @@
 
 (defn player [beat rates]
   (let [rates (if (empty? rates)
-                [3 3 2 2 1.5 1.5 0.75 0.75 0.5]
+                [5 4 3 3 2 2 1.5 1.5 0.75 0.75 0.5]
                 rates)
         freq (midi->hz (+ (note :C3) 5))
         dur (/ 60.0 (metro :bpm))
