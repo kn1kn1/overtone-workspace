@@ -1,47 +1,63 @@
 (ns overtone-workspace.core
   (:require [quil.core :as q]
-            [quil.middleware :as m]))
+            [quil.middleware :as m]
+            [overtone-workspace.voltap :as voltap])
+  (:use [overtone.live]
+        [overtone.synth.stringed])
+  )
+
+; (defonce sound-in-synth3000 (voltap/sound-in-vol-tap 3000))
+(defonce sound-in-synth3000 (voltap/vol-tap [:after (foundation-monitor-group)] 3000))
+(def circle-num 10)
 
 (defn setup []
-  ; Set frame rate to 30 frames per second.
-  (q/frame-rate 30)
-  ; Set color mode to HSB (HSV) instead of default RGB.
-  (q/color-mode :hsb)
-  ; setup function returns initial state. It contains
-  ; circle color and position.
-  {:color 0
-   :angle 0})
+  (q/frame-rate 10)
+  {:vol 0
+   :bgcolour 0
+   :radius 10})
 
 (defn update-state [state]
-  ; Update sketch state by changing circle color and position.
-  {:color (mod (+ (:color state) 0.7) 255)
-   :angle (+ (:angle state) 0.1)})
+                                        ;  (q/exit)
+  ;(q/frame-rate 10)
+  (let
+    [vol (voltap/monitor-vol)
+     vol3000 (voltap/monitor-vol sound-in-synth3000)]
+    {:vol vol
+     :bgcolour (* 2 (* 10 vol))
+     :radius (+ 10 (* 10000 vol3000))}))
 
 (defn draw-state [state]
-  ; Clear the sketch by filling it with light-grey color.
-  (q/background 240)
-  ; Set circle color.
-  (q/fill (:color state) 255 255)
-  ; Calculate x and y coordinates of the circle.
-  (let [angle (:angle state)
-        x (* 150 (q/cos angle))
-        y (* 150 (q/sin angle))]
-    ; Move origin point to the center of the sketch.
-    (q/with-translation [(/ (q/width) 2)
-                         (/ (q/height) 2)]
-      ; Draw the circle.
-      (q/ellipse x y 100 100))))
+  (let [bgcolour (:bgcolour state)
+        radius (:radius state)
+        circle-num (* 5 (:vol state))
+        r (+ (* 20 bgcolour) 60)
+        g (+ (* 20 bgcolour) 15)
+        b (+ (* 20 bgcolour) 30)
+        w (q/width)
+        h (q/height)
+        fw (/ w 2)
+        fh (/ h 2)]
+    (q/background r g b)
+    (dorun
+      (for [i (range 0 circle-num)]
+        (let [x (- (/ fw 2) (rand fw))
+              y (- (/ fh 2) (rand fh))
+              r (* (rand 2) radius)]
+          (q/stroke-int (- 255 bgcolour))
+          (q/no-fill)
+          (q/with-translation [(/ w 2)
+                               (/ h 2)]
+            (q/ellipse x y r r)
+            ))))))
 
-(q/defsketch overtone-workspace
+(q/defsketch voltap
   :title "You spin my circle right round"
-  :size [500 500]
-  ; setup function called only once, during sketch initialization.
+  :size :fullscreen
+ ; :size [500 500]
   :setup setup
-  ; update-state is called on each iteration before draw-state.
   :update update-state
   :draw draw-state
-  :features [:keep-on-top]
-  ; This sketch uses functional-mode middleware.
+  ; :features [:keep-on-top]
   ; Check quil wiki for more info about middlewares and particularly
   ; fun-mode.
   :middleware [m/fun-mode])

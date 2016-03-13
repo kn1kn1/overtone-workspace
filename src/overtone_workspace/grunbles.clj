@@ -3,12 +3,12 @@
 
 ;; Inspired by an example in an early chapter of the SuperCollider book
 
-(definst grumble [freq 440 freq-mul 1 speed 6 attack 10 release 50]
+(definst grumble [freq 440 freq-mul 1 speed 1 attack 10 release 50]
   (let [snd (mix (map #(* (saw (* % freq-mul freq))
                           (max 0 (+ (lf-noise1:kr speed)
                                     (env-gen (perc attack release) :action FREE))))
                       [1 (/ 2 3) (/ 3 2) 2]))]
-    (pan2 snd (sin-osc:kr 50))))
+    (pan2 snd (sin-osc:kr 32))))
 
 ;;(stop)
 ;; (grumble)
@@ -20,15 +20,15 @@
 ;; (ctl grumble :speed 3000)
 
 
-(volume (/ 10 127))
+(volume (/ 20 127))
 
 (def metro (metronome 128))
 
 (defn player [beat rates]
   (let [rates (if (empty? rates)
-                [2 1.5 1.5 0.75 0.75 1]
+                [3 3 2 2 1.5 1.5 0.75 0.75 0.5]
                 rates)
-        freq (midi->hz (+ (note :C3) 0))
+        freq (midi->hz (+ (note :C3) 5))
         dur (/ 60.0 (metro :bpm))
         attack (* dur 4) ; 1bar
         rel (* dur (* 4 15))]  ; 15bars
@@ -36,7 +36,7 @@
         (do
           (if (zero? (mod beat 8)) (grumble :freq freq :freq-mul 0.5 :attack attack :release rel))
           (if (zero? (mod beat 16)) (grumble :freq freq :freq-mul 1 :attack attack :release rel))
-          (if (zero? (mod beat 64)) (grumble :freq freq :freq-mul (choose rates) :attack attack :release rel))
+          (if (zero? (mod beat 48)) (grumble :freq freq :freq-mul (choose rates) :attack attack :release rel))
           ))
     (apply-by (metro (inc beat)) #'player (inc beat) rates [])
     ))
