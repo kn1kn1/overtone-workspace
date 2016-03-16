@@ -3,7 +3,7 @@
             [quil.middleware :as m])
   (:use [quil-layer layer layers]
         [quil-layer.layers fadeout-layer layer-example2]
-        [overtone-workspace.layers layer-example vol-elipse-layer])
+        [overtone-workspace.layers layer-example vol-circles-layer])
   )
 
 (defn setup []
@@ -43,7 +43,7 @@
 
 (comment
   (do
-    (def vollayer (->VolElipseLayer (atom {})))
+    (def vollayer (->VolCirclesLayer (atom {})))
     (let [layer vollayer]
       (setup-layer layer)
       (add-layer layer)))

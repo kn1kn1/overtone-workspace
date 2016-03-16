@@ -1,4 +1,4 @@
-(ns overtone-workspace.layers.vol-elipse-layer
+(ns overtone-workspace.layers.vol-circles-layer
   (:require [quil.core :as q]
             [quil.middleware :as m]
             [overtone-workspace.voltap :as voltap])
@@ -50,7 +50,7 @@
             (q/ellipse x y r r)
             ))))))
 
-(defrecord VolElipseLayer [state]
+(defrecord VolCirclesLayer [state]
   Layer
   (setup-layer-state [this]
                      (setup))
