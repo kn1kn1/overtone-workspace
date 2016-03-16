@@ -4,7 +4,7 @@
   (:use [quil-layer layer layers]
         [quil-layer.layers fadeout-layer layer-example2]
         ; [overtone-workspace.layers layer-example vol-circles-layer]
-        [overtone-workspace.layers layer-example lines-layer]
+        [overtone-workspace.layers layer-example background-layer lines-layer]
         )
   )
 
@@ -24,6 +24,18 @@
 
 (defn draw-state [state]
   (draw-layers))
+
+(comment
+  (do
+    (def bglayer (->BackgroundLayer (atom {})))
+    (let [layer bglayer]
+      (setup-layer layer)
+      ;(reset! oneoff-fn #(do (q/color-mode :hsb) (q/background 255 155 155)))
+                                        ;(reset! oneoff-fn #(do (q/color-mode :hsb) (q/background 100 100 100)))
+      ;(reset! bg-alpha 10)
+      (add-layer layer)))
+  (remove-layer bglayer)
+  )
 
 (comment
   (do

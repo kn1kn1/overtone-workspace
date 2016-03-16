@@ -10,15 +10,8 @@
 (defn- draw-state [state]
   (let [r (/ (q/width) num-of-lines)]
     (q/smooth)
-
-    (q/no-stroke)
-    (q/color-mode :hsb)
-    (q/fill (.backgroundColor (q/current-graphics)) 100)
-    (q/rect 0 0 (q/width) (q/height))
-
     (q/color-mode :rgb)
 ;    (q/background 200)
-
     (q/fill 220)
     (q/stroke 220)
     (q/stroke-weight r)

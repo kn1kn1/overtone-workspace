@@ -21,11 +21,6 @@
   ; Clear the sketch by filling it with light-grey color.
   ;(q/background 240)
 
-  (q/no-stroke)
-  (q/color-mode :hsb)
-  (q/fill (.backgroundColor (q/current-graphics)) 100)
-  (q/rect 0 0 (q/width) (q/height))
-
   ; ; Set circle color.
   ; (q/fill (:color state) 255 255)
   ; ; Calculate x and y coordinates of the circle.
