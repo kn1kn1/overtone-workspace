@@ -1,3 +1,6 @@
 [submodule "checkouts/overtone"]
 	path = checkouts/overtone
 	url = https://github.com/overtone/overtone.git
+[submodule "checkouts/quil-layer"]
+	path = checkouts/quil-layer
+	url = https://github.com/kn1kn1/quil-layer.git
