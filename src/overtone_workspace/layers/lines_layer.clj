@@ -8,22 +8,28 @@
 (defn- update-state [state] {})
 
 (defn- draw-state [state]
-  (let [r (/ (q/width) num-of-lines)
-        rr (- r)]
+  (let [r (/ (q/width) num-of-lines)]
     (q/smooth)
 
+    (q/no-stroke)
+    (q/color-mode :hsb)
+    (q/fill (.backgroundColor (q/current-graphics)) 100)
+    (q/rect 0 0 (q/width) (q/height))
+
     (q/color-mode :rgb)
-    (q/background 200)
+;    (q/background 200)
+
     (q/fill 220)
     (q/stroke 220)
+    (q/stroke-weight r)
 
     (dorun
       (for [i (range 0 num-of-lines)]
-        (let [x (+ (* i (/ (q/width) num-of-lines)) (q/random rr r))
-            y 2
-            x2 (+ (* i (/ (q/width) num-of-lines)) (q/random rr r))
-            y2 (- (q/height) 2)]
-          (q/stroke-weight r)
+        (let [top 2
+              x (+ (* i (/ (q/width) num-of-lines)) (q/random (- r) r))
+              y top
+              x2 (+ (* i (/ (q/width) num-of-lines)) (q/random (- r) r))
+              y2 (- (q/height) top)]
           (q/line x y x2 y2))
       )))
   )
