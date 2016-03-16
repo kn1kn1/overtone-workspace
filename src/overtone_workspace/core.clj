@@ -3,7 +3,9 @@
             [quil.middleware :as m])
   (:use [quil-layer layer layers]
         [quil-layer.layers fadeout-layer layer-example2]
-        [overtone-workspace.layers layer-example vol-circles-layer])
+        ; [overtone-workspace.layers layer-example vol-circles-layer]
+        [overtone-workspace.layers layer-example lines-layer]
+        )
   )
 
 (defn setup []
@@ -39,6 +41,15 @@
       (setup-layer layer)
       (add-layer layer)))
   (remove-layer layerex2)
+  )
+
+(comment
+  (do
+    (def lines-layer (->LinesLayer (atom {})))
+    (let [layer lines-layer]
+      (setup-layer layer)
+      (add-layer layer)))
+  (remove-layer lines-layer)
   )
 
 (comment
