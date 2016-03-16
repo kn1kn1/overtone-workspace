@@ -43,6 +43,15 @@
 
 (comment
   (do
+    (def vollayer (->VolElipseLayer (atom {})))
+    (let [layer vollayer]
+      (setup-layer layer)
+      (add-layer layer)))
+  (remove-layer vollayer)
+  )
+
+(comment
+  (do
     (def fadeoutlayer (->FadeoutLayer 5000 (atom {})))
     (let [layer fadeoutlayer]
       (setup-layer layer)

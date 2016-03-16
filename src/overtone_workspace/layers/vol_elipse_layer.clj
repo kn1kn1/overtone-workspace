@@ -12,7 +12,6 @@
 (def circle-num 10)
 
 (defn- setup []
-  (q/frame-rate 30)
   {:vol 0
    :bgcolour 0
    :radius 10})
@@ -59,7 +58,6 @@
                       (update-state state))
   (draw-layer-state [this state]
                     (draw-state state)))
-
 
 ; (q/defsketch voltap
 ;   :title "You spin my circle right round"
