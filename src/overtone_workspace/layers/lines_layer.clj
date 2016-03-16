@@ -2,20 +2,14 @@
   (:require [quil.core :as q])
   (:use [quil-layer.layer]))
 
-(defn- setup []
-  {:color 0
-   :angle 0})
+(def num-of-lines 5)
 
-(defn- update-state [state]
-  ; Update sketch state by changing circle color and position.
-  {:color (mod (+ (:color state) 0.7) 255)
-   :angle (+ (:angle state) 0.1)})
-
-(def num-of-lines 10)
+(defn- setup [] {})
+(defn- update-state [state] {})
 
 (defn- draw-state [state]
   (let [r (/ (q/width) num-of-lines)
-        rr (* -1.0 r)]
+        rr (- r)]
     (q/smooth)
 
     (q/color-mode :rgb)
