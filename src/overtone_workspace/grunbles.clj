@@ -1,4 +1,5 @@
 (ns overtone-workspace.grumbles
+  ; (:require  [overtone.at-at :as at-at])
   (:use [overtone.live]))
 
 ;; Inspired by an example in an early chapter of the SuperCollider book
@@ -21,6 +22,16 @@
 
 
 (volume (/ 20 127))
+
+
+;; at overtone.music.time
+; (at (+ (now) 2000) (grumble))
+; (at (+ (now) 2000) #(println "hoge"))
+; (periodic 200 #(println "hoge"))
+
+;; at overtone.at-at
+; (def mypool (at-at/mk-pool))
+; (at-at/at (+ 1000 (now))  #(println "hello from the past") mypool :desc "Message from the past")
 
 (def metro (metronome 128))
 
