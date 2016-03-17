@@ -3,7 +3,7 @@
             [quil.middleware :as m])
   (:use [quil-layer layer layers]
         [quil-layer.layers fadeout-layer layer-example2]
-        ; [overtone-workspace.layers layer-example vol-circles-layer]
+        ;[overtone-workspace.layers vol-circles-layer]
         [overtone-workspace.layers layer-example background-layer lines-layer]
         )
   )
