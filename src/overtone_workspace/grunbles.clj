@@ -1,6 +1,7 @@
 (ns overtone-workspace.grumbles
   ; (:require  [overtone.at-at :as at-at])
-  (:use [overtone.live]))
+  (:use [overtone.live]
+        [overtone-workspace.synth.laserbeam]))
 
 ;; Inspired by an example in an early chapter of the SuperCollider book
 
@@ -21,7 +22,7 @@
 ;; (ctl grumble :speed 3000)
 
 
-(volume (/ 20 127))
+(volume (/ 25 127))
 
 
 ;; at overtone.music.time
@@ -45,10 +46,17 @@
         rel (* dur (* 4 15))]  ; 15bars
     (at (metro beat)
         (do
+          (laserbeam :pan (- (rand 2) 1.0) :freq (+ (rand-int 5000) 1000))
           (if (zero? (mod beat 8)) (grumble :freq freq :freq-mul 0.5 :attack attack :release rel))
           (if (zero? (mod beat 16)) (grumble :freq freq :freq-mul 1 :attack attack :release rel))
           (if (zero? (mod beat 48)) (grumble :freq freq :freq-mul (choose rates) :attack attack :release rel))
           ))
+    (at (metro (+ beat 0.25))
+          (laserbeam :pan (- (rand 2) 1.0) :freq (+ (rand-int 5000) 1000)))
+    (at (metro (+ beat 0.5))
+          (laserbeam :pan (- (rand 2) 1.0) :freq (+ (rand-int 5000) 1000)))
+    (at (metro (+ beat 0.75))
+          (laserbeam :pan (- (rand 2) 1.0) :freq (+ (rand-int 5000) 1000)))
     (apply-by (metro (inc beat)) #'player (inc beat) rates [])
     ))
 
