@@ -1,5 +1,5 @@
 (ns overtone-workspace.grumbles
-  ; (:require  [overtone.at-at :as at-at])
+  ;;(:require  [overtone.at-at :as at-at])
   (:use [overtone.live]
         [overtone-workspace.synth.laserbeam]))
 
@@ -10,7 +10,7 @@
                           (max 0 (+ (lf-noise1:kr speed)
                                     (env-gen (perc attack release) :action FREE))))
                       [1 (/ 2 3) (/ 3 2) 2]))]
-    (pan2 snd (sin-osc:kr 16))))
+    (pan2 (* 0.7 snd) (sin-osc:kr 16))))
 
 ;;(stop)
 ;; (grumble)
@@ -21,18 +21,16 @@
 ;; (grumble :freq-mul 2)
 ;; (ctl grumble :speed 3000)
 
-
 (volume (/ 25 127))
 
-
 ;; at overtone.music.time
-; (at (+ (now) 2000) (grumble))
-; (at (+ (now) 2000) #(println "hoge"))
-; (periodic 200 #(println "hoge"))
+;; (at (+ (now) 2000) (grumble))
+;; (at (+ (now) 2000) #(println "hoge"))
+;; (periodic 200 #(println "hoge"))
 
 ;; at overtone.at-at
-; (def mypool (at-at/mk-pool))
-; (at-at/at (+ 1000 (now))  #(println "hello from the past") mypool :desc "Message from the past")
+;; (def mypool (at-at/mk-pool))
+;; (at-at/at (+ 1000 (now))  #(println "hello from the past") mypool :desc "Message from the past")
 
 (def metro (metronome 128))
 
@@ -58,20 +56,20 @@
 (defn laserplayer [beat]
   (let [dur (/ 60.0 (metro :bpm))]  ; 15bars
     (at (metro beat)
-      (laserbeam :pan (- (rand 2) 1.0) :freq (+ (rand-int 5000) 1000)))
+        (laserbeam :pan (- (rand 2) 1.0) :freq (+ (rand-int 5000) 1000)))
     (at (metro (+ beat 0.25))
-      (laserbeam :pan (- (rand 2) 1.0) :freq (+ (rand-int 5000) 1000)))
+        (laserbeam :pan (- (rand 2) 1.0) :freq (+ (rand-int 5000) 1000)))
     (at (metro (+ beat 0.5))
-      (laserbeam :pan (- (rand 2) 1.0) :freq (+ (rand-int 5000) 1000)))
+        (laserbeam :pan (- (rand 2) 1.0) :freq (+ (rand-int 5000) 1000)))
     (at (metro (+ beat 0.75))
-      (laserbeam :pan (- (rand 2) 1.0) :freq (+ (rand-int 5000) 1000)))
+        (laserbeam :pan (- (rand 2) 1.0) :freq (+ (rand-int 5000) 1000)))
     (apply-by (metro (inc beat)) #'laserplayer (inc beat) [])
     ))
 
 
-;(laserplayer (metro))
+;; (laserplayer (metro))
 
-;;(stop)
+;; (stop)
 
 ;; (def dirty-kick (freesound 777))
 ;; (dirty-kick)

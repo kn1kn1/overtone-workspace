@@ -3,20 +3,20 @@
             [quil.middleware :as m])
   (:use [quil-layer layer layers]
         [quil-layer.layers fadeout-layer layer-example2]
-        ;[overtone-workspace.layers vol-circles-layer]
+        ;;[overtone-workspace.layers vol-circles-layer]
         [overtone-workspace.layers layer-example background-layer lines-layer]
         )
   )
 
 (defn setup []
-  ; Set frame rate to 30 frames per second.
+  ;; Set frame rate to 30 frames per second.
   (q/frame-rate 30)
-  ; Set color mode to HSB (HSV) instead of default RGB.
-  ;(q/color-mode :rgb)
+  ;; Set color mode to HSB (HSV) instead of default RGB.
+  ;; (q/color-mode :rgb)
   (q/color-mode :hsb)
-  ; (q/background 128 255 255)
+  ;; (q/background 128 255 255)
   (q/background 128)
-)
+  )
 
 (defn update-state [state]
   (update-layers)
@@ -30,9 +30,9 @@
     (def bglayer (->BackgroundLayer (atom {})))
     (let [layer bglayer]
       (setup-layer layer)
-      ;(reset! oneoff-fn #(do (q/color-mode :hsb) (q/background 255 155 155)))
-                                        ;(reset! oneoff-fn #(do (q/color-mode :hsb) (q/background 100 100 100)))
-      ;(reset! bg-alpha 10)
+      ;; (reset! oneoff-fn #(do (q/color-mode :hsb) (q/background 255 155 155)))
+      ;; (reset! oneoff-fn #(do (q/color-mode :hsb) (q/background 100 100 100)))
+      ;; (reset! bg-alpha 10)
       (add-layer layer)))
   (remove-layer bglayer)
   )
@@ -86,11 +86,11 @@
 (q/defsketch voltap
   :title "You spin my circle right round"
   :size :fullscreen
- ; :size [500 500]
+  ;; :size [500 500]
   :setup setup
   :update update-state
   :draw draw-state
-  ; :features [:keep-on-top]
-  ; Check quil wiki for more info about middlewares and particularly
-  ; fun-mode.
+  ;; :features [:keep-on-top]
+  ;; Check quil wiki for more info about middlewares and particularly
+  ;; fun-mode.
   :middleware [m/fun-mode])

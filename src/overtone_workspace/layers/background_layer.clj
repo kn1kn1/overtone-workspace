@@ -9,10 +9,10 @@
 (defn- update-state [state] {})
 
 (defn- draw-state [state]
-  ;(println (.backgroundColor (q/current-graphics)))
+  ;;(println (.backgroundColor (q/current-graphics)))
   (when-not (nil? @oneoff-fn)
     (do (@oneoff-fn)
-      (reset! oneoff-fn nil)))
+        (reset! oneoff-fn nil)))
 
   (q/no-stroke)
   (q/color-mode :hsb)
@@ -23,8 +23,8 @@
 (defrecord BackgroundLayer [state]
   Layer
   (setup-layer-state [this]
-                     (setup))
+    (setup))
   (update-layer-state [this state]
-                      (update-state state))
+    (update-state state))
   (draw-layer-state [this state]
-                    (draw-state state)))
+    (draw-state state)))
