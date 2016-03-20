@@ -78,6 +78,7 @@
            (comb-n src 5 0 5)
            ))
 (odoc demo)
+(println *demo-time*)
 (odoc comb-n)
 (odoc midicps)
 (odoc mul-add)
@@ -121,6 +122,18 @@
 
 (demo 2 (pm-osc 440 550 7))
 (demo 5 (pm-osc 440 (mouse-y:kr 250 300) (mouse-x:kr 6 7)))
+
+
+(demo 2 (pm-osc 100 500 10 0))
+
+;;Page 55
+;; note 3
+;; {PMOsc.ar(Line.kr(10, 1000, 60), Line.kr(1000, 10, 60) Line.kr(1, 30, 60))}.play
+(demo 60 (pm-osc (line:kr 10 1000 60) (line:kr 1000 10 60) (line:kr 1 30 60)))
+(odoc line)
+
+(demo 10 (pm-osc 1000 10 30))
+
 (println mouse-x)
 
 (odoc demo)
@@ -151,13 +164,23 @@
 ;;
 ;;/////////////
 
-(demo 10
+(demo 90
       (let [trigger       (line:kr :start 1, :end 20, :dur 60)
             freq          (t-rand:kr :lo 100, :hi 1000, :trig (impulse:kr trigger))
             num-harmonics (t-rand:kr :lo 1,   :hi 10,   :trig (impulse:kr trigger))
             amp           (linen:kr :gate (impulse:kr trigger) :attack-time 0, :sus-level 0.5, :release-time (/ 1 trigger))]
         (* amp (blip freq num-harmonics))))
 
+(odoc blip)
+
+(demo 60 (* (linen:kr :gate (impulse:kr (line:kr :start 1 :end 20 :dur 60)) :attack-time 0 :sus-level 0.5 :release-time (/ 1.0 (line:kr :start 1 :end 20 :dur 60))) (blip 1000 10)))
+
+(demo 10 (* (linen:kr :gate (impulse:kr 20) :attack-time 0 :sus-level 0.5 :release-time (/ 1.0 20)) (blip [1000, 1001] 5)))
+
+(demo (blip 1000 10))
+(odoc linen)
+(odoc line)
+(stop)
 
 
 ;;;;;;;;;
@@ -197,7 +220,7 @@
 ;;
 ;;///////////// Figure 1.6 Phase modulation with modulator as ratio
 
-(demo 10 (let [r (line:kr :start 1, :end 20, :dur 60)
+(demo 30 (let [r (line:kr :start 1, :end 20, :dur 60)
                ;;r (+ 7 (* 3 (lf-tri:kr 0.1)))
                t (impulse:kr r)
                ;;t (dust:kr r)
