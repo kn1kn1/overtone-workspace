@@ -56,16 +56,15 @@
 (defn laserplayer [beat]
   (let [dur (/ 60.0 (metro :bpm))]  ; 15bars
     (at (metro beat)
-        (laserbeam :pan (- (rand 2) 1.0) :freq (+ (rand-int 5000) 1000)))
+        (laserbeam :pan (- (rand 2.0) 1.0) :freq (+ (rand-int 1000) 12000) :dur 0.25))
     (at (metro (+ beat 0.25))
-        (laserbeam :pan (- (rand 2) 1.0) :freq (+ (rand-int 5000) 1000)))
+        (laserbeam :pan (- (rand 2.0) 1.0) :freq (+ (rand-int 1000) 12000) :dur 0.25))
     (at (metro (+ beat 0.5))
-        (laserbeam :pan (- (rand 2) 1.0) :freq (+ (rand-int 5000) 1000)))
+        (laserbeam :pan (- (rand 2.0) 1.0) :freq (+ (rand-int 1000) 12000) :dur 0.25))
     (at (metro (+ beat 0.75))
-        (laserbeam :pan (- (rand 2) 1.0) :freq (+ (rand-int 5000) 1000)))
+        (laserbeam :pan (- (rand 2.0) 1.0) :freq (+ (rand-int 1000) 12000) :dur 0.25))
     (apply-by (metro (inc beat)) #'laserplayer (inc beat) [])
     ))
-
 
 ;; (laserplayer (metro))
 

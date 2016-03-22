@@ -30,9 +30,12 @@
 ;; ).play;
 ;; )
 (definst laserbeam [pan 0.0 freq 440 amp 1.0 dur 0.25]
-  (let [freqenv (env-gen (perc 0.01 (/ dur 4)) :action FREE)
-        ampenv (env-gen (perc 0.01 (/ dur 4)) :action FREE)
-        src (lf-tri [(* freq freqenv)])]
+  (let [freqenv (env-gen (perc 0.000 (/ dur 2.0)) :action FREE)
+        ampenv (env-gen (perc 0.000 (/ dur 2.0)) :action FREE)
+        src (lf-tri [(* freq freqenv)])
+        ;;src (* 0.6 (lf-saw [(* freq freqenv)]))
+        ;;src (saw [(* freq freqenv)])
+        ]
     (pan2 (* src ampenv amp) pan))
   )
 
@@ -40,6 +43,7 @@
 
 ;;(laserbeam :freq 300 :dur 2)
 ;;(laserbeam :freq 3000 :dur 1)
+;;(laserbeam :freq 10000 :dur 0.25)
 
 ;;(stop)
 ;; (laserbeam)
