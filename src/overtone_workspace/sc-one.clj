@@ -218,7 +218,6 @@
 ;;
 ;;p.free;  // run this to stop it
 ;;
-;;///////////// Figure 1.6 Phase modulation with modulator as ratio
 
 (demo 30 (let [r (line:kr :start 1, :end 20, :dur 60)
                ;;r (+ 7 (* 3 (lf-tri:kr 0.1)))
@@ -255,7 +254,7 @@
 ;;
 ;;/////////////
 
-
+(volume 10/127)
 
 (demo 10 (let [r (impulse:kr 10)
                c (t-rand:kr :lo 100, :hi 5000, :trig r)
@@ -266,6 +265,48 @@
                carrier (+ 700 (* 500 (lf-noise0:kr rate)))
                mod-ratio (mouse-x :min 1, :max 2)]
            (* 0.3 (pm-osc carrier (* carrier mod-ratio) 12 9))))
+
+
+(demo 10 (let [r (impulse:kr 4)
+               c (t-rand:kr :lo 100, :hi 5000, :trig r)
+               m (t-rand:kr :lo 100, :hi 5000, :trig r)]
+           (* [0.3 0.3] (pm-osc c m 12 0))))
+
+;; (definst fmm [pan 0.0 carrier 440 modulator 440 amp 1.0 dur 0.25]
+;;   (let [ampenv (env-gen (perc 0.01 (/ dur 1)) :action FREE)
+;;         src (pm-osc carrier modulator 12 0)]
+;;     (pan2 (* src ampenv amp) pan))
+;;   )
+(definst fmm [pan 0.0 carrier 440 amp 1.0 dur 0.25]
+  (let [ampenv (env-gen (perc 0.01 (/ dur 1)) :action FREE)
+        mod-ratio (mouse-x :min 1, :max 2)
+        ;;mod-ratio 1.09
+        src (pm-osc carrier (* carrier mod-ratio) 12 0)]
+    (pan2 (* src ampenv amp) pan))
+  )
+
+;; (defn fmfn [dur]
+;;   (fmm :pan (- (rand 2) 1.0) :carrier (+ (rand-int 4900) 100) :modulator (+ (rand-int 4900) 100) :dur (* 2 dur)))
+
+
+(defn fmfn [dur]
+  (let [carrier 440
+        ;;carrier (+ 200 (* (rand 1000)))
+        ]
+  (fmm :pan (- (rand 2) 1.0) :carrier carrier :dur (* 2 dur))
+  ))
+
+(def metro (metronome 128))
+(defn fmplayer [beat]
+  (let [dur (/ 60.0 (metro :bpm))]
+    (at (metro beat)
+        (fmfn (* 2 dur)))
+    (at (metro (+ beat 0.5))
+        (fmfn (* 2 dur)))
+    (apply-by (metro (inc beat)) #'fmplayer (inc beat) [])
+    ))
+(fmplayer (metro))
+(stop)
 
 
 
