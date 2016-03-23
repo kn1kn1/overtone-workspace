@@ -701,7 +701,9 @@ chooston
   ;; .playは後で
   (defsynth choos [] (out gate-b (pan2 (play-buf 1 chooston :loop 1) -0.5))))
 
-(hous [:tail pb-group]) ;.play(~pbGroup)
+;; .play(~pbGroup)
+(hous [:tail pb-group])
+(stop)
 ;; hous -> gate-b -> out 0
 ;; hous -> gate-syn
 ;; hous -> gate-b -> mod-b -> delay-b -> out 0
@@ -709,7 +711,8 @@ chooston
 ;; hous -> pb-group -> c-syn -> d-syn <- m-syn <- g-syn
 ;; hous -> group -> control-syn -> delay-syn <- mod-syn <- gate-syn
 
-(choos [:tail pb-group])  ;.play(~pbGroup)
+;.play(~pbGroup)
+(choos [:tail pb-group])
 
 (stop)
 
@@ -754,7 +757,9 @@ chooston
 
   (future
     (loop []
-      (let [density 1
+      (let [density 1.0  ; 100% of the time. Uncomment below for 70%, etc.
+            ;;density 0.7
+            ;;density 0.3
             midi (choose [0 2 4 7 9])
             oct (choose [48 60 72])]
         (if (weighted-coin density)
@@ -772,6 +777,11 @@ chooston
 
 ;; to stop
 (reset! cont false)
+
+(odoc choose)
+(odoc choose-n)
+(odoc weighted-coin)
+(odoc nth)
 
 ;; Page 36
 
