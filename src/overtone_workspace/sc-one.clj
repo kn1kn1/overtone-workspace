@@ -427,6 +427,9 @@
 ;;Synth("PMCrotale", ["midi", rrand(48, 72).round(1), "tone", rrand(1, 6)])
 
 (pmc-rotale :midi (ranged-rand 48 72) :tone (ranged-rand 1 6))
+(pmc-rotale :midi 72 :tone 6 :art 3)
+(odoc env-gen)
+(odoc pm-osc)
 
 ;;Page 25
 ;;
@@ -440,8 +443,8 @@
 ;;you're running OS X. Feel free to change the following audio paths
 ;;to any other audio file on your disk...
 
-(def houston (load-sample "/Applications/SuperCollider/sounds/a11wlk01-44_1.aiff"))
-(def chooston (load-sample "/Applications/SuperCollider/sounds/a11wlk01.wav"))
+(def houston (load-sample "/Applications/SuperCollider/SuperCollider.app/Contents/Resources/sounds/a11wlk01-44_1.aiff"))
+(def chooston (load-sample "/Applications/SuperCollider/SuperCollider.app/Contents/Resources/sounds/a11wlk01.wav"))
 
 (demo 4 (play-buf 1 houston))
 (demo 5 (play-buf 1 chooston))
@@ -475,11 +478,14 @@ chooston
               trigger (impulse:kr rate)
               src (play-buf 1 houston 1 trigger (* frames (line:kr 0 1 60)))
               env (env-gen:kr (lin 0.01 0.96 0.01) trigger)]
-          (* src env rate)))
+           (* src env rate)))
+(odoc play-buf)
+(odoc lin)
+(odoc env-gen)
 
 ;; note how the envelope is used to stop clicking between segments. Contrast with the following
 
-(demo 5 (let [frames (num-frames houston)
+(demo 60 (let [frames (num-frames houston)
               rate   [1 1.01]
               trigger (impulse:kr rate)
               src (play-buf 1 houston 1 trigger (* frames (line:kr 0 1 60)))]
@@ -585,6 +591,9 @@ chooston
 ;;try evaling these
 (map-ctl s :freq kbus3)
 (map-ctl s :freq kbus4)
+(ctl s :freq kbus3)
+(ctl s :freq kbus4)
+(node-map-controls s :freq kbus3)
 
 (stop)
 
@@ -619,6 +628,12 @@ chooston
                delay (allpass-c source 2 [0.65 1.15] 10)]
            (+ delay (pan2 source))))
 
+(odoc allpass-c)
+
+(demo 10 (let [source (play-buf 1 chooston :loop 1)
+               delay (allpass-c source 5 [0.5 0.6] 2)]
+           (+ delay (pan2 source))))
+
 
 ;;//Create and name buses
 ;;~delay = Bus.audio(s, 2);
@@ -646,33 +661,59 @@ chooston
 ;;// Start the other
 ;;{Out.ar(~gate, Pan2.ar(PlayBuf.ar(1, ~chooston, loop: 1), -0.5))}.play(~pbGroup);
 
+;; p.28
+;;  we'll just recommend that you have a look at the Order of Execution Help file
+;; http://danielnouri.org/docs/SuperColliderHelp/ServerArchitecture/Order-of-execution.html
+
 (do
   (def delay-b (audio-bus 2))
   (def mod-b (audio-bus 2))
   (def gate-b (audio-bus 2))
   (def k5-b (control-bus))
 
+  ;;//start the control
   (defsynth control-syn [] (out:kr k5-b (lf-noise0:kr 4)))
   (def c-syn (control-syn))
 
+  ;;// Start the last item in the chain, the delay
   (defsynth delay-syn [] (out:ar 0 (allpass-c (in delay-b 2) 2 [0.65 1.15] 10)))
-  (def d-syn (delay-syn [ :after c-syn]))
+  (def d-syn (delay-syn [:after c-syn]))
 
+  ;;// Start the next to last item, the modulation
   (defsynth mod-syn [] (out delay-b (* (in mod-b 2) (sin-osc (+ 1100 (* 500 (in:kr k5-b)))))))
   (def m-syn (mod-syn [:before d-syn]))
 
+  ;;//Start the third to last item, the gate
   (defsynth gate-syn [] (out [0 mod-b] (* (in gate-b 2) (max 0 (in:kr k5-b)))))
   (def g-syn (gate-syn [:before m-syn]))
 
+  ;;//make a group for the PlayBuf synths at the head of the chain
+  ;;~pbGroup = Group.before(~controlSyn);
   (def pb-group (group :before c-syn))
 
+  ;;// Start one buffer. Since we add to the group, we know where it will go
+  ;; {Out.ar(~gate, Pan2.ar(PlayBuf.ar(1, ~houston, loop: 1), 0.5))}
+  ;; .playは後で
   (defsynth hous [] (out gate-b (pan2 (play-buf 1 houston :loop 1) 0.5)))
+
+  ;;// Start the other
+  ;; {Out.ar(~gate, Pan2.ar(PlayBuf.ar(1, ~chooston, loop: 1), -0.5))}
+  ;; .playは後で
   (defsynth choos [] (out gate-b (pan2 (play-buf 1 chooston :loop 1) -0.5))))
 
-(hous [:tail pb-group])
-(choos [:tail pb-group])
+(hous [:tail pb-group]) ;.play(~pbGroup)
+;; hous -> gate-b -> out 0
+;; hous -> gate-syn
+;; hous -> gate-b -> mod-b -> delay-b -> out 0
+;; hous -> gate-syn -> mod-syn -> delay-syn
+;; hous -> pb-group -> c-syn -> d-syn <- m-syn <- g-syn
+;; hous -> group -> control-syn -> delay-syn <- mod-syn <- gate-syn
+
+(choos [:tail pb-group])  ;.play(~pbGroup)
 
 (stop)
+
+(odoc group)
 
 
 ;; Page 32
