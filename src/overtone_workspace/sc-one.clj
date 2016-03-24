@@ -808,9 +808,17 @@ chooston
          (+ (* (sin-osc 220)  (max 0 (lf-noise1:kr 12)) 1)
             (* (sin-osc 440)  (max 0 (lf-noise1:kr 12)) 1/2)
             (* (sin-osc 660)  (max 0 (lf-noise1:kr 12)) 1/3)
-            (* (sin-osc 880)  (max 0 (lf-noise1:kr 12)) 1/4 )
+            (* (sin-osc 880)  (max 0 (lf-noise1:kr 12)) 1/4)
             (* (sin-osc 1110) (max 0 (lf-noise1:kr 12)) 1/5)
             (* (sin-osc 1320) (max 0 (lf-noise1:kr 12)) 1/6))))
+(demo 15
+      (* 0.3
+         (mix [(* (sin-osc 220)  (max 0 (lf-noise1:kr 12)) 1)
+               (* (sin-osc 440)  (max 0 (lf-noise1:kr 12)) 1/2)
+               (* (sin-osc 660)  (max 0 (lf-noise1:kr 12)) 1/3)
+               (* (sin-osc 880)  (max 0 (lf-noise1:kr 12)) 1/4)
+               (* (sin-osc 1110) (max 0 (lf-noise1:kr 12)) 1/5)
+               (* (sin-osc 1320) (max 0 (lf-noise1:kr 12)) 1/6)])))
 
 ;; or the more compact but equivalent:
 
@@ -845,7 +853,32 @@ chooston
               (* (sin-osc harm)
                  (max [0 0] (sin-osc:kr (/ (inc count) 4)))
                  (/ 1 (inc count))))))))
+(demo 60
+      (* 0.7
+         (mix
+          (for [count (range 12)]
+            (let [harm (* (inc count) 110)]
+              (* (sin-osc harm)
+                 (max [0 0] (sin-osc:kr (/ (inc count) 4)))
+                 (/ 1 (inc count))))))))
+(demo 60
+      (* 0.7
+         (mix
+          (for [count (range 12)]
+            (let [harm (* (inc count) 110)]
+              (* (sin-osc [harm harm])
+                 (max 0 (sin-osc:kr (/ (inc count) 4)))
+                 (/ 1 (inc count))))))))
 
+;; switch to lf-noise1 equivalent to figure 1.15 Page 36
+(demo 60
+      (* 0.7
+         (mix
+          (for [count (range 12)]
+            (let [harm (* (inc count) 110)]
+              (* (sin-osc [harm harm])
+                 (max 0 (lf-noise1:kr 12))
+                 (/ 1 (inc count))))))))
 
 ;; Page 38
 
@@ -881,3 +914,18 @@ chooston
                             (pan2 (klank specs (* 0.03 (dust (/ 1 6)) ))
                                   pan)))]
         (out 0 (mix (repeatedly bells mk-bell)))))
+
+(demo 120
+      (let [num-res 5
+            bells   20
+            scale   (map midi->hz [60 62 64 67 69])
+            mk-bell (fn [] (let [freqs (repeatedly num-res #(* (ranged-rand 1 5) (choose scale)))
+                                amps  (repeatedly num-res #(ranged-rand 0.3 0.9))
+                                rings (repeatedly num-res #(ranged-rand 1 4))
+                                specs [freqs amps rings]
+                                pan (softclip (* 2 (lf-noise1:kr (ranged-rand 3 6))))]
+                            (pan2 (klank specs (* 0.03 (dust (/ 1 6))))
+                                  pan)))]
+        (* 20.0 (mix (repeatedly bells mk-bell)))))
+(volume 1.0)
+(odoc klank)
