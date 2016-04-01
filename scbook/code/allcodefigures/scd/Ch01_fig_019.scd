@@ -31,27 +31,33 @@ Out.ar(0, out*amp)
 		arg cnt1;
 		var steps, durSeq, harmSeq;
 		steps = rrand(6, 12);
-		if(cnt1%6 == 0, // every sixth iteration, add a degree
-			{~scale = ~scale.add(~scaleAdd.wrapAt((cnt1/6).round(1) - 1));});
+
+		// print iteration
 		"\nIteration: ".post; cnt1.post;
 		[" (center) ", " (right) ", " (left) "].wrapAt(cnt1).postln;
-		if(cnt1%24 == 0, // reset all three
-			{~scale = [0, 2, 7, 9];
-			3.do({arg cnt2;
-				~pSeq.wrapPut(cnt2,
-					Array.fill(steps,
-						{~scale.choose + [48, 60].choose}))})});
+
+		// scale
+		if(cnt1%6 == 0, // every sixth iteration, add a degree
+			{~scale = ~scale.add(~scaleAdd.wrapAt((cnt1/6).round(1) - 1));});
+		if(cnt1%24 == 0, // reset scale
+			{~scale = [0, 2, 7, 9];});
 		"scale: ".post; ~scale.postln;
+
+		// reset sequence
 		~pSeq.wrapPut(cnt1, // fill array with scale steps
 			Array.fill(steps, {~scale.choose + [48, 60].choose}));
-		"MIDI seq: ".post; (~pSeq.wrapAt(cnt1)%12).postln;
+		// print sequence
+		//"MIDI seq: ".post; (~pSeq.wrapAt(cnt1)%12).postln;
+		"Sequence (MIDI): ".post; (~pSeq.wrapAt(cnt1)%12).postln;
 		"Sequence (notes): ".post;
 		~pSeq.wrapAt(cnt1).do( // print the sequence using note names
 			{arg thisItem; ~notes.at(thisItem%12).post});
 		"".postln;
+
 		// create harmonic and duration arrays
 		harmSeq = Array.fill(steps, {rrand(1.0, 5.0)});
 		durSeq = Array.fill(steps - 1, {rrand(0.01, 0.9)});
+
 		// stop the previous task at this array position
 		~inst.wrapAt(cnt1).stop;
 		~inst.wrapPut(cnt1,
@@ -66,6 +72,7 @@ Out.ar(0, out*amp)
 					0.125.wait; // tempo of each note
 				})}).start;
 		);
+
 		12.wait;})
 }).start; // time between each new sequence
 )
