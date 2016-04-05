@@ -1,7 +1,8 @@
 (ns overtone-workspace.grumbles
   ;;(:require  [overtone.at-at :as at-at])
   (:use [overtone.live]
-        [overtone-workspace.synth.laserbeam]))
+        [overtone-workspace.synth.laserbeam]
+        [overtone-workspace.synth.laserbeam2]))
 
 ;; Inspired by an example in an early chapter of the SuperCollider book
 
@@ -69,6 +70,21 @@
 ;; (laserplayer (metro))
 
 ;; (stop)
+
+(defn laserplayer2 [beat]
+  (let [dur (/ 60.0 (metro :bpm))]
+    (at (metro beat)
+        (laserbeam2))
+    (at (metro (+ beat 0.25))
+        (laserbeam2))
+    (at (metro (+ beat 0.5))
+        (laserbeam2))
+    (at (metro (+ beat 0.75))
+        (laserbeam2))
+    (apply-by (metro (inc beat)) #'laserplayer2 (inc beat) [])
+    ))
+
+;; (laserplayer2 (metro))
 
 ;; (def dirty-kick (freesound 777))
 ;; (dirty-kick)
