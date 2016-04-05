@@ -4,17 +4,19 @@
 {
 	var carrier, rate, trigger, modRatio, index, control, env;
 	rate = 3;
+
 	trigger = Impulse.kr(rate);
 	control = LFNoise0.kr(rate);
+
 	carrier = 62;
 	modRatio = 4.125;
 	index = 10;
+
 	carrier = carrier.midicps;
-	carrier.poll(trigger, "carrier"); 
-	index.poll(trigger, "index"); 
+	carrier.poll(trigger, "carrier");
 	modRatio.poll(trigger, "modRatio");
+	index.poll(trigger, "index");
+
 	PMOsc.ar(carrier, carrier*modRatio, index)
 }.play
 )
-
-

@@ -1,8 +1,6 @@
-// ﻿1.24 PMOsc With Sample and Hold (Latch)
-
 (
 // run this first
-a = SynthDef("Latch_demo",
+a = SynthDef("PMCrotale",
 {
 arg rate = 9;
 var trigger, freq, latchrate, index, ratio, env, out;
@@ -28,26 +26,31 @@ freq.poll(trigger, "freq");
 ratio = LFNoise1.kr(1/10, mul: 2.0, add: 5.0);
 ratio.poll(Impulse.kr(1/10), "ratio");
 
-env = EnvGen.kr(
-	Env.perc(0, LFNoise0.kr(rate, mul: 1, add: 1.5) / rate),
-	trigger,
-	LFNoise1.kr([5, 5], 2, 1).max(0).min(0.8));
+env = EnvGen.kr(Env.perc(0, 1.0 / rate), doneAction:2);
 
 out = PMOsc.ar(
 	[freq, freq * 1.5],
 	freq * ratio,
 	index,
-	mul: env * 0.05
+	mul: env * 0.1
 );
-Out.ar(0, out);
+
+Out.ar(0, out); //Out.ar(bus, out);
 }
-).play
+).add
 )
 
-a.set("rate", 10)
+//Then run this a bunch of times:
+Synth("PMCrotale", ["rate", 9])
 
-a.set("rate", 15)
+// This uses the PMCrotale synth definition
+(
+r = Task({
+	inf.do({ arg count;
+		Synth("PMCrotale", ["rate", 9]);
+		(1.0 / 9).wait;
+	});
+}).start
+)
 
-a.set("rate", 6)
-
-a.free;
+r.stop; // run this to stop
