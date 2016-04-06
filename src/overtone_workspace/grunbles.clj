@@ -83,7 +83,9 @@
     (apply-by (metro (inc beat)) #'latchbellplayer (inc beat) [])
     ))
 
+;; (init-latchbell-mod)
 ;; (latchbellplayer (metro))
+;; (stop)
 
 ;; (def dirty-kick (freesound 777))
 ;; (dirty-kick)
