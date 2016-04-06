@@ -1,8 +1,7 @@
 (ns overtone-workspace.grumbles
   ;;(:require  [overtone.at-at :as at-at])
   (:use [overtone.live]
-        [overtone-workspace.synth.laserbeam]
-        [overtone-workspace.synth.laserbeam2]))
+        [overtone-workspace.synth laserbeam latchbell]))
 
 ;; Inspired by an example in an early chapter of the SuperCollider book
 
@@ -55,7 +54,7 @@
 (player (metro) [])
 
 (defn laserplayer [beat]
-  (let [dur (/ 60.0 (metro :bpm))]  ; 15bars
+  (let [dur (/ 60.0 (metro :bpm))]      ; 15bars
     (at (metro beat)
         (laserbeam :pan (- (rand 2.0) 1.0) :freq (+ (rand-int 1000) 12000) :dur 0.25))
     (at (metro (+ beat 0.25))
@@ -71,20 +70,20 @@
 
 ;; (stop)
 
-(defn laserplayer2 [beat]
+(defn latchbellplayer [beat]
   (let [dur (/ 60.0 (metro :bpm))]
     (at (metro beat)
-        (laserbeam2))
+        (latchbell))
     (at (metro (+ beat 0.25))
-        (laserbeam2))
+        (latchbell))
     (at (metro (+ beat 0.5))
-        (laserbeam2))
+        (latchbell))
     (at (metro (+ beat 0.75))
-        (laserbeam2))
-    (apply-by (metro (inc beat)) #'laserplayer2 (inc beat) [])
+        (latchbell))
+    (apply-by (metro (inc beat)) #'latchbellplayer (inc beat) [])
     ))
 
-;; (laserplayer2 (metro))
+;; (latchbellplayer (metro))
 
 ;; (def dirty-kick (freesound 777))
 ;; (dirty-kick)
