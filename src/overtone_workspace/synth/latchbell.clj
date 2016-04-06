@@ -27,22 +27,24 @@
   (out:kr kbus-latchbell-ratio (+ 5.0 (* 2.0 (lf-noise1:kr (/ 1.0 10)))))
   )
 
-(definst latchbell [rate 9 amp 0.1]
+(definst latchbell [rate 9 amp 0.1 time-scale-max 4.0 time-scale-min 0.5]
   (let [index (in:kr kbus-latchbell-idx)
         midinote (in:kr kbus-latchbell-midi)
         freq (midicps midinote)
         ratio (in:kr kbus-latchbell-ratio)
-        dur (+ 3.25 (* 1.75 (lf-noise1:kr rate)))
+        add (/ (+ time-scale-max time-scale-min) 2)
+        mul (/ (- time-scale-max time-scale-min) 2)
+        dur (+ add (* mul (lf-noise1:kr rate)))
         env (env-gen (perc 0.0 (/ dur rate)) :action FREE)
         ]
     (* amp (* env (pm-osc [freq, (* 1.5 freq)] (* freq ratio) index)))
   ))
 
-(defn init-latchbell-mod []
+(defn init-latchbell-mod [rate]
   (do
     (mod-latchbell-rate)
-    (mod-latchbell-midi)
-    (mod-latchbell-idx)
+    (mod-latchbell-midi :rate rate)
+    (mod-latchbell-idx :rate rate)
     (mod-latchbell-ratio)
     ))
 

@@ -70,20 +70,22 @@
 
 ;; (stop)
 
+(def latchbell-arg (atom {:rate 9 :amp 0.2 :max 2.5}))
+
 (defn latchbellplayer [beat]
   (let [dur (/ 60.0 (metro :bpm))]
     (at (metro beat)
-        (latchbell))
+        (latchbell :rate (:rate @latchbell-arg) :amp (:amp @latchbell-arg) :time-scale-max (:max @latchbell-arg)))
     (at (metro (+ beat 0.25))
-        (latchbell))
+        (latchbell :rate (:rate @latchbell-arg) :amp (:amp @latchbell-arg) :time-scale-max (:max @latchbell-arg)))
     (at (metro (+ beat 0.5))
-        (latchbell))
+        (latchbell :rate (:rate @latchbell-arg) :amp (:amp @latchbell-arg) :time-scale-max (:max @latchbell-arg)))
     (at (metro (+ beat 0.75))
-        (latchbell))
+        (latchbell :rate (:rate @latchbell-arg) :amp (:amp @latchbell-arg) :time-scale-max (:max @latchbell-arg)))
     (apply-by (metro (inc beat)) #'latchbellplayer (inc beat) [])
     ))
 
-;; (init-latchbell-mod)
+;; (init-latchbell-mod (:rate @latchbell-arg))
 ;; (latchbellplayer (metro))
 ;; (stop)
 
