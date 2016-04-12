@@ -5,6 +5,10 @@
 
 ;; Inspired by an example in an early chapter of the SuperCollider book
 
+;; (def kick (sample "resources/kick.wav"))
+;; (kick :start 0 :end 0.1)
+
+
 (definst grumble [freq 440 freq-mul 1 speed 10 attack 10 release 50]
   (let [snd (mix (map #(* (lf-cub (* % freq-mul freq))
                           (max 0 (+ (lf-noise1:kr speed)
