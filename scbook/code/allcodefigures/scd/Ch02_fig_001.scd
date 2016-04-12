@@ -10,8 +10,11 @@ z = s.scope(4);
 (
 SynthDef(\UGen_ex1a, {
 	Out.ar(0, SinOsc.ar(440, 0, 0.1))
+	// 15 Ugens running.
+	// original 12 plus 1 for SinOsc, 1 for MulAdd, 1 for Out
+
 }).add
-)	
+)
 
 a= Synth(\UGen_ex1a);
 
@@ -21,8 +24,10 @@ a.free;
 (
 SynthDef(\UGen_ex1b, {
 	Out.ar(0, SinOsc.ar([440, 446, 448.5, 882], 0, 0.1))
+	// 21 Ugens running.
+	// original 12 plus 4 for SinOsc, 4 for MulAdd, 1 for Out
 }).add
-)	
+)
 
 a= Synth(\UGen_ex1b);
 
@@ -33,7 +38,7 @@ a.free;
 SynthDef(\UGen_ex1c, {
 	Out.ar(0, SinOsc.ar([440, 446, 448.5, 882], 0, [0.1, 0.2, 0.3, 0.4]))
 }).add;
-)	
+)
 
 a= Synth(\UGen_ex1c);
 
@@ -44,12 +49,10 @@ a.free;
 SynthDef(\UGen_ex1d, {
 	Out.ar(0, SinOsc.ar([440, 446, 448.5, 882], 0, [0.1, 0.2, 0.3]).sum);
 }).add
-)	
+)
 
 a= Synth(\UGen_ex1d);
 
 a.free;
 
 z.window.close;
-
-
