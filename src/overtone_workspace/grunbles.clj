@@ -51,7 +51,7 @@
     (apply-by (metro (inc beat)) #'player (inc beat) rates [])
     ))
 
-(player (metro) [])
+;; (player (metro) [])
 
 (defn laserplayer [beat]
   (let [dur (/ 60.0 (metro :bpm))]      ; 15bars
