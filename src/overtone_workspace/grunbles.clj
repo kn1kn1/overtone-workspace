@@ -99,7 +99,8 @@
     (apply-by (metro (inc beat)) #'latchbellplayer (inc beat) [])
     ))
 ;; (init-latchbell-mod (:rate @latchbell-arg))
-;; (latchbellplayer (metro))
+
+;; (Latchbellplayer (metro))
 ;; (stop)
 
 (comment
@@ -124,6 +125,7 @@
 (def _ 0)
 (def beats {laserbeam [1 _ _ _ _ _ _ 1 _ _ 1 _ _ _ _ 1]
             latchbell [1 _ 1 _ 1 _ 1 _ 1 _ 1 _ 1 _ _ 1]})
+; (def beats {laserbeam [1 _ _ _ _ _ _ 1 _ _ 1 _ _ _ _ 1]})
 
 (def *beats (atom beats))
 
@@ -134,44 +136,83 @@
 ;   (let [next-beat (+ scale beat)]
 ;     (apply-by (nome next-beat) live-sequencer [nome next-beat live-patterns scale (inc idx)])))
 
+; (defn live-sequencer [nome beat live-patterns scale idx]
+;   (doseq [[sound pattern] @live-patterns
+;           :let [v (nth pattern (mod idx (count pattern)))
+;                 v (cond
+;                     (= 1 v)
+;                     []
+;
+;                     (map? v)
+;                     (flatten1 v)
+;
+;                     :else
+;                     nil)]
+;           :when v]
+;     (at (nome beat) (apply sound v)))
+;   (let [next-beat (+ scale beat)]
+;     (apply-by (nome next-beat) live-sequencer [nome next-beat live-patterns scale (inc idx)])))
+
+
 (defn flatten1
   "Takes a map and returns a seq of all the key val pairs:
       (flatten1 {:a 1 :b 2 :c 3}) ;=> (:b 2 :c 3 :a 1)"
   [m]
   (reduce (fn [r [arg val]] (cons arg (cons val r))) [] m))
 
+(defn normalise-beat-info
+  [beat]
+  (cond
+   (= 0 beat)         nil
+   (= 1 beat)         {}
+   (map? beat)        beat
+   (sequential? beat) beat
+   :else              {}))
 
-(defn live-sequencer [nome beat live-patterns scale idx]
-  (doseq [[sound pattern] @live-patterns
-          :let [v (nth pattern (mod idx (count pattern)))
-                v (cond
-                    (= 1 v)
-                    []
+(defn schedule-pattern
+  [curr-t pat-dur sound pattern]
+  {:pre [(sequential? pattern)]}
+  (let [beat-sep-t (/ pat-dur (count pattern))]
+    (doseq [[beat-info idx] (partition 2 (interleave pattern (range)))]
+      (let [beat-t    (+ curr-t (* idx beat-sep-t))
+            beat-info (normalise-beat-info beat-info)]
+        (if (sequential? beat-info)
+          (schedule-pattern beat-t beat-sep-t sound beat-info)
+          (at beat-t (when beat-info (apply sound (flatten1 beat-info)))))))))
 
-                    (map? v)
-                    (flatten1 v)
+(defn live-sequencer
+  [curr-t pat-dur live-patterns]
+  (doseq [[sound pattern] @live-patterns]
+    (schedule-pattern curr-t pat-dur sound pattern))
+  (let [new-t (+ curr-t pat-dur)]
+    (apply-by new-t #'live-sequencer [new-t pat-dur live-patterns])))
 
-                    :else
-                    nil)]
-          :when v]
-    (at (nome beat) (apply sound v)))
-  (let [next-beat (+ scale beat)]
-    (apply-by (nome next-beat) live-sequencer [nome next-beat live-patterns scale (inc idx)])))
-
-(def a {:rate 100 :amp 0.5 :time-scale-max 10})
-(def a {:rate 2 :amp 0.05 :time-scale-max 5})
+(def a {:rate 100 :amp 0.2 :time-scale-max 10})
+(def a {:rate 2 :amp 0.2 :time-scale-max 10})
 (def b {:pan -1 :freq 1000})
 (def c {:freq 25000 :amp 0.2})
 (def d {:amp 3.0 :dur 0.25})
+(def g {:freq-mul 0.25})
 
 (metro :bpm 110)
-(volume 0.5)
-(comment
-  (live-sequencer metro (metro) *beats 1/4 0)
+(volume 0.25)
 
-  (swap! *beats assoc laserbeam [d _ _ _ b _ _ d _ _ d _ b _ _ d])
+(comment
+  (live-sequencer (now) 2000 *beats)
+  (init-latchbell-mod (:rate @latchbell-arg))
+
+  (swap! *beats assoc laserbeam [d _ _ [d d] (vec (repeat 128 0.8)) _ _ d _ _ d _ b _ _ [d d d]])
+  (swap! *beats assoc laserbeam [_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _])
   (swap! *beats assoc latchbell [a _ a _ a _ a _ a _ a _ a _ a _])
+  (swap! *beats assoc latchbell (vec (repeat 128 a)))
   (swap! *beats assoc laserbeam [d c c c b c c d c c d c b c c d])
+  (swap! *beats assoc grumble [g _ _ _ _ _ _ _ _  _ _ _ _ _ _ _])
 
   (reset! *beats beats)
   (stop))
+
+(comment
+  (live-sequencer metro (metro) *beats 1/4 0)
+  (stop))
+
+(odoc metronome)
