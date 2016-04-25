@@ -125,33 +125,33 @@
 (def _ 0)
 (def beats {laserbeam [1 _ _ _ _ _ _ 1 _ _ 1 _ _ _ _ 1]
             latchbell [1 _ 1 _ 1 _ 1 _ 1 _ 1 _ 1 _ _ 1]})
-; (def beats {laserbeam [1 _ _ _ _ _ _ 1 _ _ 1 _ _ _ _ 1]})
+;; (def beats {laserbeam [1 _ _ _ _ _ _ 1 _ _ 1 _ _ _ _ 1]})
 
 (def *beats (atom beats))
 
-; (defn live-sequencer [nome beat live-patterns scale idx]
-;   (doseq [[sound pattern] @live-patterns]
-;      (when (= 1 (nth pattern (mod idx (count pattern))))
-;        (at (nome beat) (sound))))
-;   (let [next-beat (+ scale beat)]
-;     (apply-by (nome next-beat) live-sequencer [nome next-beat live-patterns scale (inc idx)])))
+;; (defn live-sequencer [nome beat live-patterns scale idx]
+;;   (doseq [[sound pattern] @live-patterns]
+;;      (when (= 1 (nth pattern (mod idx (count pattern))))
+;;        (at (nome beat) (sound))))
+;;   (let [next-beat (+ scale beat)]
+;;     (apply-by (nome next-beat) live-sequencer [nome next-beat live-patterns scale (inc idx)])))
 
-; (defn live-sequencer [nome beat live-patterns scale idx]
-;   (doseq [[sound pattern] @live-patterns
-;           :let [v (nth pattern (mod idx (count pattern)))
-;                 v (cond
-;                     (= 1 v)
-;                     []
-;
-;                     (map? v)
-;                     (flatten1 v)
-;
-;                     :else
-;                     nil)]
-;           :when v]
-;     (at (nome beat) (apply sound v)))
-;   (let [next-beat (+ scale beat)]
-;     (apply-by (nome next-beat) live-sequencer [nome next-beat live-patterns scale (inc idx)])))
+;; (defn live-sequencer [nome beat live-patterns scale idx]
+;;   (doseq [[sound pattern] @live-patterns
+;;           :let [v (nth pattern (mod idx (count pattern)))
+;;                 v (cond
+;;                     (= 1 v)
+;;                     []
+;;
+;;                     (map? v)
+;;                     (flatten1 v)
+;;
+;;                     :else
+;;                     nil)]
+;;           :when v]
+;;     (at (nome beat) (apply sound v)))
+;;   (let [next-beat (+ scale beat)]
+;;     (apply-by (nome next-beat) live-sequencer [nome next-beat live-patterns scale (inc idx)])))
 
 
 (defn flatten1
@@ -187,24 +187,65 @@
   (let [new-t (+ curr-t pat-dur)]
     (apply-by new-t #'live-sequencer [new-t pat-dur live-patterns])))
 
-(def a {:rate 100 :amp 0.2 :time-scale-max 10})
-(def a {:rate 2 :amp 0.2 :time-scale-max 10})
+(def a {:rate 100 :amp 0.4 :time-scale-max 5})
+(def a {:rate 2 :amp 0.1 :time-scale-max 5})
 (def b {:pan -1 :freq 1000})
 (def c {:freq 25000 :amp 0.2})
-(def d {:amp 3.0 :dur 0.25})
-(def g {:freq-mul 0.25})
+(def d {:amp 5.0 :dur 0.25})
+(def g {:freq-mul 1})
 
 (metro :bpm 110)
-(volume 0.25)
+(volume 0.5)
+(metro :bpm)
+
+;;(def metro (metronome 128))
+(def one-beat-dur (/ 60.0 110))
+(def one-bar-dur (* one-beat-dur 4))
+(def beat-per-pattern 4)
+(def dur-per-pattern (* beat-per-pattern one-beat-dur))
+
+(defn next-beat [cur-beat beat beats]
+  (let [mod-beat (mod cur-beat beats)
+        d-beat   (- beat mod-beat)]
+    (cond
+      (<= d-beat 0) (+ cur-beat beats d-beat)
+      (> d-beat 0) (+ cur-beat d-beat)
+      )))
+
+(mod 1 4)
+(- 0 1)
+(+ 1 )
+(next-beat 0 0 4) ;; => 4
+(next-beat 1 0 4) ;; => 4
+(next-beat 2 0 4) ;; => 4
+(next-beat 3 0 4) ;; => 4
+(next-beat 4 0 4) ;; => 8
+
+(next-beat 0 2 4) ;; => 2
+(next-beat 1 2 4) ;; => 2
+(next-beat 2 2 4) ;; => 6
+(next-beat 3 2 4) ;; => 6
+(next-beat 4 2 4) ;; => 6
+(next-beat 5 2 4) ;; => 6
+(next-beat 6 2 4) ;; => 10
 
 (comment
-  (live-sequencer (now) 2000 *beats)
+  ;;(live-sequencer (now) 2000 *beats)
+  (let [ms-per-pattern (* 1000 dur-per-pattern)]
+    ;;(live-sequencer (now) ms-per-pattern *beats)
+    ;; (live-sequencer (metro (inc (metro))) ms-per-pattern *beats))
+    (live-sequencer (metro (next-beat (metro) 0 beat-per-pattern)) ms-per-pattern *beats))
+  (laserplayer (next-beat (metro) 0 beat-per-pattern))
   (init-latchbell-mod (:rate @latchbell-arg))
+  (apply-by (metro (next-beat (metro) (+ 4 (* 7 beat-per-pattern)) (* 8 beat-per-pattern)))
+            #'swap! [*beats assoc laserbeam [d _ _ [d d] (vec (repeat 64 0.8)) _ _ d _ _ d _ b _ _ [d d d]]])
+  (apply-by (metro (next-beat (metro) 0 (* 8 beat-per-pattern)))
+    #'swap! [*beats assoc laserbeam [d _ _ [d d] (vec (repeat 64 0.8)) _ _ d _ _ d _ b _ _ [d d d]]])
 
-  (swap! *beats assoc laserbeam [d _ _ [d d] (vec (repeat 128 0.8)) _ _ d _ _ d _ b _ _ [d d d]])
+  (swap! *beats assoc laserbeam [d _ _ [d d] (vec (repeat 64 0.8)) _ _ d _ _ d _ b _ _ [d d d]])
   (swap! *beats assoc laserbeam [_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _])
   (swap! *beats assoc latchbell [a _ a _ a _ a _ a _ a _ a _ a _])
-  (swap! *beats assoc latchbell (vec (repeat 128 a)))
+  (swap! *beats assoc latchbell (vec (repeat 1 _)))
   (swap! *beats assoc laserbeam [d c c c b c c d c c d c b c c d])
   (swap! *beats assoc grumble [g _ _ _ _ _ _ _ _  _ _ _ _ _ _ _])
 
