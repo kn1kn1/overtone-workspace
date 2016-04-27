@@ -179,14 +179,29 @@
           (schedule-pattern beat-t beat-sep-t sound beat-info)
           (at beat-t (when beat-info (apply sound (flatten1 beat-info)))))))))
 
+(def live-sequencer-states {})
+(def *live-sequencer-states (atom live-sequencer-states))
+
 (defn live-sequencer
+  [curr-t pat-dur live-patterns uid]
+  (let [running (@*live-sequencer-states uid)]
+    (when running
+      (doseq [[sound pattern] @live-patterns]
+        (schedule-pattern curr-t pat-dur sound pattern))
+      (let [new-t (+ curr-t pat-dur)]
+        (apply-by new-t #'live-sequencer [new-t pat-dur live-patterns uid]))
+      )))
+
+(defn start-live-sequencer
   [curr-t pat-dur live-patterns]
-  (doseq [[sound pattern] @live-patterns]
-    (schedule-pattern curr-t pat-dur sound pattern))
-  (let [new-t (+ curr-t pat-dur)]
-    (apply-by new-t #'live-sequencer [new-t pat-dur live-patterns])))
+  (let [uid (trig-id)]
+    (swap! *live-sequencer-states assoc uid true)
+    (live-sequencer curr-t pat-dur live-patterns uid)
+    uid
+    ))
 
 (def a {:rate 2 :amp 0.1 :time-scale-max 5})
+(def a {:rate 10 :amp 0.1 :time-scale-max 10})
 (def a {:rate 100 :amp 0.4 :time-scale-max 5})
 (def b {:pan -1 :freq 1000})
 (def c {:freq 25000 :amp 0.2})
@@ -233,14 +248,14 @@
   (let [ms-per-pattern (* 1000 dur-per-pattern)]
     ;;(live-sequencer (now) ms-per-pattern *beats)
     ;; (live-sequencer (metro (inc (metro))) ms-per-pattern *beats))
-    (live-sequencer (metro (next-beat (metro) 0 beat-per-pattern)) ms-per-pattern *beats))
+    (start-live-sequencer (metro (next-beat (metro) 0 beat-per-pattern)) ms-per-pattern *beats))
   (init-latchbell-mod (:rate @latchbell-arg))
   (apply-by (metro (- (next-beat (metro) 0 (* 8 beat-per-pattern)) 1/16))
             #'swap! [*beats assoc laserbeam [d _ _ [_ d d] (vec (repeat 64 0.5)) _ _ d _ _ d _ b _ _ [d d d]]])
 
-  (apply-by (metro (- (next-beat (metro) 0 (* 4 beat-per-pattern)) 1/16))
+  (apply-by (metro (- (next-beat (metro) 0 (* 8 beat-per-pattern)) 1/16))
             #'init-latchbell-mod [(:rate @latchbell-arg)])
-  (apply-by (metro (- (next-beat (metro) 0 (* 4 beat-per-pattern)) 1/16))
+  (apply-by (metro (- (next-beat (metro) 0 (* 8 beat-per-pattern)) 1/16))
             #'swap! [*beats assoc latchbell (vec (repeat 24 a))])
 
   (swap! *beats assoc laserbeam [d _ _ [d d] (vec (repeat 64 0.8)) _ _ d _ _ d _ b _ _ [d d d]])
@@ -280,6 +295,12 @@
     ;;(live-sequencer (now) ms-per-pattern *beats)
     ;; (live-sequencer (metro (inc (metro))) ms-per-pattern *beats))
     (live-sequencer (metro (next-beat (metro) 0 beat-per-pattern)) (* 16 ms-per-pattern) *beats16))
+  (let [ms-per-pattern (* 1000 dur-per-pattern)]
+    ;;(live-sequencer (now) ms-per-pattern *beats)
+    ;; (live-sequencer (metro (inc (metro))) ms-per-pattern *beats))
+    (start-live-sequencer (metro (next-beat (metro) 0 beat-per-pattern)) (* 16 ms-per-pattern) *beats16))
+  (print @*live-sequencer-states)
+  (swap! *live-sequencer-states assoc 3 false)
   (reset! *beats16 beats16))
 
 
@@ -292,4 +313,8 @@
   (odoc apply-by)
   (odoc apply-at)
   (odoc at-at)
+  (odoc trig-id)
+  (odoc on-trigger)
+  (odoc on-sync-trigger)
+  (odoc on-latest-trigger)
   )
