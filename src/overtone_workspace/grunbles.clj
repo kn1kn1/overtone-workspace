@@ -46,9 +46,7 @@
 ;; (def mypool (at-at/mk-pool))
 ;; (at-at/at (+ 1000 (now))  #(println "hello from the past") mypool :desc "Message from the past")
 
-(def metro (metronome 128))
-
-(defn player [beat rates]
+(defn player [metro beat rates]
   (let [rates (if (empty? rates)
                 [5 4 3 3 2 2 1.5 1.5 0.75 0.75 0.5]
                 rates)
@@ -65,9 +63,9 @@
     (apply-by (metro (inc beat)) #'player (inc beat) rates [])
     ))
 
-;; (player (metro) [])
+;; (player sequencer-metro (sequencer-metro))
 
-(defn laserplayer [beat]
+(defn laserplayer [metro beat]
   (let [dur (/ 60.0 (metro :bpm))]      ; 15bars
     (at (metro beat)
         (laserbeam :pan (- (rand 2.0) 1.0) :freq (+ (rand-int 1000) 100) :dur 0.25))
@@ -80,13 +78,13 @@
     (apply-by (metro (inc beat)) #'laserplayer (inc beat) [])
     ))
 
-;; (laserplayer (metro))
+;; (laserplayer sequencer-metro (sequencer-metro))
 
 ;; (stop)
 
 (def latchbell-arg (atom {:rate 100 :amp 0.4 :max 5}))
 
-(defn latchbellplayer [beat]
+(defn latchbellplayer [metro beat]
   (let [dur (/ 60.0 (metro :bpm))]
     (at (metro beat)
         (latchbell :rate (:rate @latchbell-arg) :amp (:amp @latchbell-arg) :time-scale-max (:max @latchbell-arg)))
@@ -100,7 +98,7 @@
     ))
 ;; (init-latchbell-mod (:rate @latchbell-arg))
 
-;; (Latchbellplayer (metro))
+;; (Latchbellplayer sequencer-metro (sequencer-metro))
 ;; (stop)
 
 (comment
@@ -137,36 +135,30 @@
 (def d {:amp 5.0 :dur 0.25})
 (def g {:freq-mul 1})
 
-(metro :bpm 128)
 (volume 0.5)
-(metro :bpm)
+(sequencer-metro :bpm)
 
-;;(def metro (metronome 128))
-(def one-beat-dur (/ 60.0 128))
-(def one-bar-dur (* one-beat-dur 4))
 (def beat-per-pattern 4)
-(def dur-per-pattern (* one-beat-dur beat-per-pattern))
+(defn dur-per-pattern [] (* (dur-per-beat) beat-per-pattern))
 
 (comment
   ;;(live-sequencer (now) 2000 *beats)
-  (let [ms-per-pattern (* 1000 dur-per-pattern)]
-    ;;(live-sequencer (now) ms-per-pattern *beats)
-    ;; (live-sequencer (metro (inc (metro))) ms-per-pattern *beats))
-    (start-live-sequencer (metro (next-beat (metro) 0 beat-per-pattern)) ms-per-pattern *beats))
-  (init-latchbell-mod (:rate @latchbell-arg))
-  (apply-by (metro (- (next-beat (metro) 0 (* 8 beat-per-pattern)) 1/16))
-            #'swap! [*beats assoc laserbeam [d _ _ [_ d d] (vec (repeat 64 0.5)) _ _ d _ _ d _ b _ _ [d d d]]])
-
-  (apply-by (metro (- (next-beat (metro) 0 (* 8 beat-per-pattern)) 1/16))
+  (start-live-sequencer (sequencer-metro (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern))) (* 1 beat-per-pattern) *beats "beats")
+  (apply-by (sequencer-metro (- (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern)) 1/256))
             #'init-latchbell-mod [(:rate @latchbell-arg)])
-  (apply-by (metro (- (next-beat (metro) 0 (* 8 beat-per-pattern)) 1/16))
+  (apply-by (sequencer-metro (- (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern)) 1/256))
+            #'swap! [*beats assoc laserbeam [d _ _ [_ d d] (vec (repeat 64 0.5)) _ _ d _ _ d _ b _ _ [d d d]]])
+  (apply-by (sequencer-metro (- (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern)) 1/256))
             #'swap! [*beats assoc latchbell (vec (repeat 24 a))])
 
+  (init-latchbell-mod (:rate @latchbell-arg))
   (swap! *beats assoc laserbeam [d _ _ [d d] (vec (repeat 64 0.8)) _ _ d _ _ d _ b _ _ [d d d]])
   (swap! *beats assoc laserbeam [_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _])
   (swap! *beats assoc latchbell [a _ a _ a _ a _ a _ a _ a _ a _])
+  (swap! *beats assoc latchbell [_])
   (swap! *beats assoc laserbeam [d c c c b c c d c c d c b c c d])
   (swap! *beats assoc grumble [g _ _ _ _ _ _ _ _  _ _ _ _ _ _ _])
+  (stop-live-sequencer "beats")
 
   (reset! *beats beats)
   (stop))
@@ -191,32 +183,16 @@
                          ]})
 (def *beats16 (atom beats16))
 (reset! *beats16 beats16)
-(metro :bpm 128)
 
 (comment
-  ;;(live-sequencer (now) 2000 *beats)
-  (let [ms-per-pattern (* 1000 dur-per-pattern)]
-    ;;(live-sequencer (now) ms-per-pattern *beats)
-    ;; (live-sequencer (metro (inc (metro))) ms-per-pattern *beats))
-    (live-sequencer (metro (next-beat (metro) 0 beat-per-pattern)) (* 16 ms-per-pattern) *beats16))
-  (let [ms-per-pattern (* 1000 dur-per-pattern)]
-    ;;(live-sequencer (now) ms-per-pattern *beats)
-    ;; (live-sequencer (metro (inc (metro))) ms-per-pattern *beats))
-    (start-live-sequencer (metro (next-beat (metro) 0 beat-per-pattern)) (* 16 ms-per-pattern) *beats16))
-  (let [ms-per-pattern (* 1000 dur-per-pattern)]
-    ;;(live-sequencer (now) ms-per-pattern *beats)
-    ;; (live-sequencer (metro (inc (metro))) ms-per-pattern *beats))
-    (start-live-sequencer (metro (next-beat (metro) 0 beat-per-pattern)) (* 16 ms-per-pattern) *beats16 "hoge"))
-
+  (update-bpm 128)
+  (start-live-sequencer (sequencer-metro (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern))) (* 16 beat-per-pattern) *beats16 "beats16")
   (print @*live-sequencer-states)
-  (stop-live-sequencer "hoge")
+  (stop-live-sequencer "beats16")
   (swap! *live-sequencer-states assoc "hoge" false)
+  (apply-by (sequencer-metro (- (next-beat (sequencer-metro) 0 (* 16 beat-per-pattern)) 1/256))
+            #'update-bpm [144])
   (reset! *beats16 beats16)
-  (stop))
-
-
-(comment
-  (live-sequencer metro (metro) *beats 1/4 0)
   (stop))
 
 (comment

@@ -1,6 +1,17 @@
 (ns overtone-workspace.sequencer
   (:use [overtone.live]))
 
+(def *sequencer-bpm (atom 128))
+(def sequencer-metro (metronome @*sequencer-bpm))
+
+(defn update-bpm
+  [bpm]
+  (reset! *sequencer-bpm bpm)
+  (sequencer-metro :bpm bpm))
+
+(defn dur-per-beat [] (/ 60.0 @*sequencer-bpm))
+(defn dur-per-bar [] (* (dur-per-beat) 4))
+
 (defn- flatten1
   "Takes a map and returns a seq of all the key val pairs:
         (flatten1 {:a 1 :b 2 :c 3}) ;=> (:b 2 :c 3 :a 1)"
@@ -55,21 +66,22 @@
 ;;     (apply-by (nome next-beat) live-sequencer [nome next-beat live-patterns scale (inc idx)])))
 
 (defn- live-sequencer
-  [curr-t pat-dur live-patterns uid]
-  (let [running (@*live-sequencer-states uid)]
+  [curr-t beats-per-pat live-patterns uid]
+  (let [running (@*live-sequencer-states uid)
+        pat-dur (/ (* 1000 beats-per-pat 60.0) @*sequencer-bpm)]
     (when running
       (doseq [[sound pattern] @live-patterns]
         (schedule-pattern curr-t pat-dur sound pattern))
-      (let [new-t (+ curr-t pat-dur)]
-        (apply-by new-t #'live-sequencer [new-t pat-dur live-patterns uid]))
+      (let [next-t (+ curr-t pat-dur)]
+        (apply-by next-t #'live-sequencer [next-t beats-per-pat live-patterns uid]))
       )))
 
 (defn start-live-sequencer
-  ([curr-t pat-dur live-patterns] (let [uid (trig-id)] (start-live-sequencer curr-t pat-dur live-patterns uid)))
-  ([curr-t pat-dur live-patterns uid]
+  ([curr-t beats-per-pat live-patterns] (let [uid (trig-id)] (start-live-sequencer curr-t beats-per-pat live-patterns uid)))
+  ([curr-t beats-per-pat live-patterns uid]
    (do
      (swap! *live-sequencer-states assoc uid true)
-     (live-sequencer curr-t pat-dur live-patterns uid)
+     (live-sequencer curr-t beats-per-pat live-patterns uid)
      uid
      )))
 
