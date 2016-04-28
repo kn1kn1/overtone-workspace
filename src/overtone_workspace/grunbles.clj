@@ -60,10 +60,10 @@
           (if (zero? (mod beat 16)) (grumble :freq freq :freq-mul 1 :attack attack :release rel))
           (if (zero? (mod beat 48)) (grumble :freq freq :freq-mul (choose rates) :attack attack :release rel))
           ))
-    (apply-by (metro (inc beat)) #'player (inc beat) rates [])
+    (apply-by (metro (inc beat)) #'player [sequencer-metro (inc beat) rates] )
     ))
 
-;; (player sequencer-metro (sequencer-metro))
+;; (player sequencer-metro (sequencer-metro) nil)
 
 (defn laserplayer [metro beat]
   (let [dur (/ 60.0 (metro :bpm))]      ; 15bars
@@ -75,7 +75,7 @@
         (laserbeam :pan (- (rand 2.0) 1.0) :freq (+ (rand-int 1000) 100) :dur 0.25))
     (at (metro (+ beat 0.75))
         (laserbeam :pan (- (rand 2.0) 1.0) :freq (+ (rand-int 1000) 100) :dur 0.25))
-    (apply-by (metro (inc beat)) #'laserplayer (inc beat) [])
+    (apply-by (metro (inc beat)) #'laserplayer [sequencer-metro (inc beat)])
     ))
 
 ;; (laserplayer sequencer-metro (sequencer-metro))
@@ -94,11 +94,11 @@
         (latchbell :rate (:rate @latchbell-arg) :amp (:amp @latchbell-arg) :time-scale-max (:max @latchbell-arg)))
     (at (metro (+ beat 0.75))
         (latchbell :rate (:rate @latchbell-arg) :amp (:amp @latchbell-arg) :time-scale-max (:max @latchbell-arg)))
-    (apply-by (metro (inc beat)) #'latchbellplayer (inc beat) [])
+    (apply-by (metro (inc beat)) #'latchbellplayer [sequencer-metro  (inc beat)])
     ))
 ;; (init-latchbell-mod (:rate @latchbell-arg))
 
-;; (Latchbellplayer sequencer-metro (sequencer-metro))
+;; (latchbellplayer sequencer-metro (sequencer-metro))
 ;; (stop)
 
 (comment
