@@ -16,12 +16,13 @@
         freq (midi->hz (+ (note :C3) -1))
         dur (/ 60.0 (metro :bpm))
         attack (* dur 4) ; 1bar
-        rel (* dur (* 4 15))]  ; 15bars
+        rel (* dur (* 4 15))
+        amp 0.2]  ; 15bars
     (at (metro beat)
         (do
-          (if (zero? (mod beat 8)) (grumble :freq freq :freq-mul 0.5 :attack attack :release rel))
-          (if (zero? (mod beat 16)) (grumble :freq freq :freq-mul 1 :attack attack :release rel))
-          (if (zero? (mod beat 48)) (grumble :freq freq :freq-mul (choose rates) :attack attack :release rel))
+          (if (zero? (mod beat 8)) (grumble :freq freq :freq-mul 0.5 :attack attack :release rel :amp amp))
+          (if (zero? (mod beat 16)) (grumble :freq freq :freq-mul 1 :attack attack :release rel :amp amp))
+          (if (zero? (mod beat 48)) (grumble :freq freq :freq-mul (choose rates) :attack attack :release rel :amp amp))
           ))
     (apply-by (metro (inc beat)) #'player [sequencer-metro (inc beat) rates] )
     ))
@@ -110,6 +111,7 @@
   (swap! *beats assoc laserbeam [d c c c b c c d c c d c b c c d])
   (swap! *beats assoc grumble [g _ _ _ _ _ _ _ _  _ _ _ _ _ _ _])
   (swap! *beats assoc kick [[1 _ _ [1 1]] [_ _ _ 1] [_ _ 1 _] [_ _ _ [1 1 1]]])
+  (swap! *beats assoc kick [_])
   (stop-live-sequencer "beats")
 
   (reset! *beats beats)
