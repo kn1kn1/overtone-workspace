@@ -16,8 +16,8 @@
         freq (midi->hz (+ (note :C3) -1))
         dur (/ 60.0 (metro :bpm))
         attack (* dur 4) ; 1bar
-        rel (* dur (* 4 15))
-        amp 0.2]  ; 15bars
+        rel (* dur (* 4 7)) ; 7bars
+        amp 0.2]
     (at (metro beat)
         (do
           (if (zero? (mod beat 8)) (grumble :freq freq :freq-mul 0.5 :attack attack :release rel :amp amp))
@@ -62,14 +62,16 @@
 ;; (stop)
 
 (comment
-  (inst-fx! latchbell fx-echo)
+  (inst-fx! latchbell fx-chorus)
   (inst-fx! latchbell fx-distortion2)
   (clear-fx latchbell)
 
-  (inst-fx! grumble fx-bitcrusher)
+  (inst-fx! grumble fx-chorus)
   (clear-fx grumble)
 
-  (inst-fx! laserbeam fx-freeverb)
+  (inst-fx! laserbeam fx-distortion2)
+  (inst-fx! laserbeam fx-distortion-tubescreamer)
+  (inst-fx! laserbeam fx-chorus)
   (clear-fx laserbeam))
 
 
