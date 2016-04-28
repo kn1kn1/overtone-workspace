@@ -1,50 +1,13 @@
-(ns overtone-workspace.grumbles
-  ;;(:require  [overtone.at-at :as at-at])
+(ns overtone-workspace.beats
   (:use [overtone.live]
         [overtone-workspace sequencer]
-        [overtone-workspace.synth laserbeam latchbell]))
+        [overtone-workspace.synth grumbles laserbeam latchbell]))
 
-;; Inspired by an example in an early chapter of the SuperCollider book
 
-;; (def kick (sample "resources/kick.wav"))
+(def kick (sample "resources/kick.wav"))
 ;; (kick)
 
-(comment
-  (odoc line)
-  (odoc asr)
-  (odoc buf-rd)
-  (odoc phasor)
-  (odoc bpz2)
-  (odoc latch)
-  (odoc buf-rate-scale)
-  (odoc buf-dur))
-
-(definst grumble [freq 440 freq-mul 1 speed 10 attack 10 release 50]
-  (let [snd (mix (map #(* (lf-cub (* % freq-mul freq))
-                          (max 0 (+ (lf-noise1:kr speed)
-                                    (env-gen (perc attack release) :action FREE))))
-                      [1 (/ 2 3) (/ 3 2) 2]))]
-    (pan2 (* 0.7 snd) (sin-osc:kr 16))))
-
-;;(stop)
-;; (grumble)
-;; (grumble :freq-mul 0.5)
-;; (grumble :freq-mul 0.75)
-;; (grumble :freq-mul 1)
-;; (grumble :freq-mul 1.5)
-;; (grumble :freq-mul 2)
-;; (ctl grumble :speed 3000)
-
 (volume (/ 25 127))
-
-;; at overtone.music.time
-;; (at (+ (now) 2000) (grumble))
-;; (at (+ (now) 2000) #(println "hoge"))
-;; (periodic 200 #(println "hoge"))
-
-;; at overtone.at-at
-;; (def mypool (at-at/mk-pool))
-;; (at-at/at (+ 1000 (now))  #(println "hello from the past") mypool :desc "Message from the past")
 
 (defn player [metro beat rates]
   (let [rates (if (empty? rates)
@@ -62,7 +25,6 @@
           ))
     (apply-by (metro (inc beat)) #'player [sequencer-metro (inc beat) rates] )
     ))
-
 ;; (player sequencer-metro (sequencer-metro) nil)
 
 (defn laserplayer [metro beat]
@@ -77,13 +39,10 @@
         (laserbeam :pan (- (rand 2.0) 1.0) :freq (+ (rand-int 1000) 100) :dur 0.25))
     (apply-by (metro (inc beat)) #'laserplayer [sequencer-metro (inc beat)])
     ))
-
 ;; (laserplayer sequencer-metro (sequencer-metro))
-
 ;; (stop)
 
 (def latchbell-arg (atom {:rate 100 :amp 0.4 :max 5}))
-
 (defn latchbellplayer [metro beat]
   (let [dur (/ 60.0 (metro :bpm))]
     (at (metro beat)
@@ -113,18 +72,10 @@
   (clear-fx laserbeam))
 
 
-;; (def dirty-kick (freesound 777))
-;; (dirty-kick)
-;; (def kick (sample (freesound-path 2086)))
-;; (kick)
-;; (def close-hihat (sample-player (sample (freesound-path 802))))
-
-
 (def _ 0)
 (def beats {laserbeam [1 _ _ _ _ _ _ 1 _ _ 1 _ _ _ _ 1]
             latchbell [1 _ 1 _ 1 _ 1 _ 1 _ 1 _ 1 _ _ 1]})
 ;; (def beats {laserbeam [1 _ _ _ _ _ _ 1 _ _ 1 _ _ _ _ 1]})
-
 (def *beats (atom beats))
 
 (def a {:rate 2 :amp 0.1 :time-scale-max 5})
@@ -135,7 +86,7 @@
 (def d {:amp 5.0 :dur 0.25})
 (def g {:freq-mul 1})
 
-(volume 0.5)
+(volume 0.25)
 (sequencer-metro :bpm)
 
 (def beat-per-pattern 4)
@@ -158,6 +109,7 @@
   (swap! *beats assoc latchbell [_])
   (swap! *beats assoc laserbeam [d c c c b c c d c c d c b c c d])
   (swap! *beats assoc grumble [g _ _ _ _ _ _ _ _  _ _ _ _ _ _ _])
+  (swap! *beats assoc kick [[1 _ _ [1 1]] [_ _ _ 1] [_ _ 1 _] [_ _ _ [1 1 1]]])
   (stop-live-sequencer "beats")
 
   (reset! *beats beats)
