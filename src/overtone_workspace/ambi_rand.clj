@@ -41,8 +41,8 @@
                      ambi-soft-buzz-b
                      ambi-swoosh-b
                      ])]
-    (at (metro beat) (ambi buf (num-frames buf) start rate (/ dur 2)))
-    (apply-by (metro (+ beat 1/2)) #'ambi-player [metro (+ beat 1/2)])))
+    (at (metro beat) (ambi buf (num-frames buf) start rate (/ dur (choose [1 2 3 4]))))
+    (apply-by (metro (+ beat 1/4)) #'ambi-player [metro (+ beat 1/4)])))
 
 (comment
   (do
