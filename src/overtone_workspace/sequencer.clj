@@ -38,6 +38,17 @@
           (schedule-pattern beat-t beat-sep-t sound beat-info)
           (at beat-t (when beat-info (apply sound (flatten1 beat-info)))))))))
 
+(defn- schedule-fn-pattern
+  [curr-t pat-dur sound pattern]
+  {:pre [(sequential? pattern)]}
+  (let [beat-sep-t (/ pat-dur (count pattern))]
+    (doseq [[beat-info idx] (partition 2 (interleave pattern (range)))]
+      (let [beat-t    (+ curr-t (* idx beat-sep-t))
+            beat-info (normalise-beat-info beat-info)]
+        (if (sequential? beat-info)
+          (schedule-fn-pattern beat-t beat-sep-t sound beat-info)
+          (when beat-info (apply-at beat-t sound (vec (flatten1 beat-info)))))))))
+
 (def live-sequencer-states {})
 (def *live-sequencer-states (atom live-sequencer-states))
 
@@ -76,6 +87,17 @@
         (apply-by next-t #'live-sequencer [next-t beats-per-pat live-patterns uid]))
       )))
 
+(defn- live-fn-sequencer
+  [curr-t beats-per-pat live-patterns uid]
+  (let [running (@*live-sequencer-states uid)
+        pat-dur (/ (* 1000 beats-per-pat 60.0) @*sequencer-bpm)]
+    (when running
+      (doseq [[sound pattern] @live-patterns]
+        (schedule-fn-pattern curr-t pat-dur sound pattern))
+      (let [next-t (+ curr-t pat-dur)]
+        (apply-by next-t #'live-fn-sequencer [next-t beats-per-pat live-patterns uid]))
+      )))
+
 (defn start-live-sequencer
   ([curr-t beats-per-pat live-patterns] (let [uid (trig-id)] (start-live-sequencer curr-t beats-per-pat live-patterns uid)))
   ([curr-t beats-per-pat live-patterns uid]
@@ -84,6 +106,15 @@
      (live-sequencer curr-t beats-per-pat live-patterns uid)
      uid
      )))
+
+ (defn start-live-fn-sequencer
+   ([curr-t beats-per-pat live-patterns] (let [uid (trig-id)] (start-live-fn-sequencer curr-t beats-per-pat live-patterns uid)))
+   ([curr-t beats-per-pat live-patterns uid]
+    (do
+      (swap! *live-sequencer-states assoc uid true)
+      (live-fn-sequencer curr-t beats-per-pat live-patterns uid)
+      uid
+      )))
 
 (defn stop-live-sequencer
   [uid]

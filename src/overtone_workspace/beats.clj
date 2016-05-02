@@ -113,6 +113,7 @@
   (swap! *beats assoc laserbeam [_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _])
   (swap! *beats assoc latchbell [a _ a _ a _ a _ a _ a _ a _ a _])
   (swap! *beats assoc latchbell [_])
+  (swap! *beats assoc laserbeam [d _ _ _ b _ _ d _ _ d _ b _ _ d])
   (swap! *beats assoc laserbeam [d c c c b c c d c c d c b c c d])
   (swap! *beats assoc grumble [g _ _ _ _ _ _ _ _  _ _ _ _ _ _ _])
   (swap! *beats assoc kick [[1 _ _ [1 1]] [_ _ _ 1] [_ _ 1 _] [_ _ _ [1 1 1]]])
@@ -121,6 +122,18 @@
 
   (reset! *beats beats)
   (stop))
+
+(def fn-beats {ambi-player (vec (repeat 16 1))})
+(def *fn-beats (atom fn-beats))
+(comment
+  (start-live-fn-sequencer (sequencer-metro (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern))) (* 1 beat-per-pattern) *fn-beats "fn-beats")
+  (live-fn-sequencer (now) 4 *fn-beats "fn-beats")
+  (swap! *fn-beats assoc ambi-player [1 _ 1 _ 1 _ 1 _ 1 _ 1 _ 1 _ 1 _])
+  (swap! *fn-beats assoc ambi-player [[1 _ _ [1 1]] [(vec (repeat 8 1)) _ _ 1] [_ _ 1 _] [(vec (repeat 8 1)) _ _ [1 1 1]]])
+  (swap! *fn-beats assoc ambi-player (vec (repeat 16 1)))
+  (println @*fn-beats)
+  (stop)
+  )
 
 (def beats16 {laserbeam [
                          [[d _ d _] [b _ _ _] [_ d 1 _] [[b _] [1 1 1]]]

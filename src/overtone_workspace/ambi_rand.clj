@@ -24,10 +24,11 @@
   (reduce * (repeat n x)))
 (defn pitch-to-ratio [m]
   (exponential 2.0 (/ m 12.0)))
-(defn ambi-player [metro beat]
-  (let [start (rand)
+(defn ambi-player []
+  (let [dur 0.5
+        ;;dur (/ 60 (metro :bpm))
+        start (rand)
         rate (* (pitch-to-ratio (choose [-5 -3 0 2])) (choose [1/8 1/4 1/2 1]))
-        dur (/ 60 (metro :bpm))
         buf (choose [ambi-piano-b
                      ;;ambi-choir-b
                      ambi-dark-woosh-b
@@ -38,10 +39,10 @@
                      ambi-soft-buzz-b
                      ambi-swoosh-b
                      ])]
-    (at (metro beat) (ambi buf (num-frames buf) start rate (/ dur (choose [1 2 3 4]))))))
+    (ambi buf (num-frames buf) start rate (/ dur (choose [1 2 3 4])))))
 
 (defn ambi-loop [metro beat]
-  (apply-at (metro beat) #'ambi-player [metro beat])
+  (apply-at (metro beat) #'ambi-player [])
   (apply-by (metro (+ beat 1/4)) #'ambi-loop [metro (+ beat 1/4)]))
 
 (comment
