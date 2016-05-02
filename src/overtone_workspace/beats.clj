@@ -1,11 +1,14 @@
 (ns overtone-workspace.beats
   (:use [overtone.live]
         [overtone-workspace sequencer]
+        [overtone-workspace ambi-rand]
         [overtone-workspace.synth grumbles laserbeam latchbell]))
 
 
 (def kick (sample "resources/kick.wav"))
 ;; (kick)
+
+;; (ambi-loop sequencer-metro (sequencer-metro))
 
 (volume (/ 25 127))
 

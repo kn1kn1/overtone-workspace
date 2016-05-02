@@ -10,7 +10,7 @@
 (def ambi-lunar-land-b (load-sample "resources/ambi_lunar_land.wav"))
 (def ambi-soft-buzz-b (load-sample "resources/ambi_soft_buzz.wav"))
 (def ambi-swoosh-b (load-sample "resources/ambi_swoosh.wav"))
-(definst ambi [buff ambi-choir-b frames 0 start 0 rate 1.0 dur 0.25 amp 1]
+(definst ambi [buff ambi-choir-b frames 0 start 0 rate 1.0 dur 0.25 amp 3]
   (let [
         trig (env-gen:kr (lin 0 dur 0))
         src (play-buf 1 buff rate trig (* frames start) 0 FREE)
