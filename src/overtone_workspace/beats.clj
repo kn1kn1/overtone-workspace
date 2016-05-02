@@ -127,10 +127,12 @@
 (def *fn-beats (atom fn-beats))
 (comment
   (start-live-fn-sequencer (sequencer-metro (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern))) (* 1 beat-per-pattern) *fn-beats "fn-beats")
-  (live-fn-sequencer (now) 4 *fn-beats "fn-beats")
+  ;;(live-fn-sequencer (now) 4 *fn-beats "fn-beats")
   (swap! *fn-beats assoc ambi-player [1 _ 1 _ 1 _ 1 _ 1 _ 1 _ 1 _ 1 _])
   (swap! *fn-beats assoc ambi-player [[1 _ _ [1 1]] [(vec (repeat 8 1)) _ _ 1] [_ _ 1 _] [(vec (repeat 8 1)) _ _ [1 1 1]]])
   (swap! *fn-beats assoc ambi-player (vec (repeat 16 1)))
+  (apply-by (sequencer-metro (- (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern)) 1/256))
+            #'stop-live-sequencer ["fn-beats"])
   (println @*fn-beats)
   (stop)
   )
