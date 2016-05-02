@@ -1,9 +1,6 @@
 (ns overtone-workspace.ambi-rand
   (:use [overtone.live]))
 
-;; https://twitter.com/kn1kn1/status/624227547660726272
-;; loop{use_bpm 70;sample:ambi_piano,sustain:0.25,rate:pitch_to_ratio([-5,-2,0,3].choose)*[1,2,4].choose*[1,-1].choose,start:rand;sleep 0.25}
-
 (def ambi-piano-b (load-sample "resources/ambi_piano.wav"))
 (def ambi-choir-b (load-sample "resources/ambi_choir.wav"))
 (def ambi-dark-woosh-b (load-sample "resources/ambi_dark_woosh.wav"))
@@ -13,7 +10,7 @@
 (def ambi-lunar-land-b (load-sample "resources/ambi_lunar_land.wav"))
 (def ambi-soft-buzz-b (load-sample "resources/ambi_soft_buzz.wav"))
 (def ambi-swoosh-b (load-sample "resources/ambi_swoosh.wav"))
-(definst ambi [buff ambi-choir-b frames 0 start 0 rate 1.0 dur 0.25 amp 10]
+(definst ambi [buff ambi-choir-b frames 0 start 0 rate 1.0 dur 0.25 amp 1]
   (let [
         trig (env-gen:kr (lin 0 dur 0))
         src (play-buf 1 buff rate trig (* frames start) 0 FREE)
@@ -41,12 +38,16 @@
                      ambi-soft-buzz-b
                      ambi-swoosh-b
                      ])]
-    (at (metro beat) (ambi buf (num-frames buf) start rate (/ dur (choose [1 2 3 4]))))
-    (apply-by (metro (+ beat 1/4)) #'ambi-player [metro (+ beat 1/4)])))
+    (at (metro beat) (ambi buf (num-frames buf) start rate (/ dur (choose [1 2 3 4]))))))
+
+(defn ambi-loop [metro beat]
+  (apply-at (metro beat) #'ambi-player [metro beat])
+  (apply-by (metro (+ beat 1/4)) #'ambi-loop [metro (+ beat 1/4)]))
 
 (comment
   (do
     (def metro (metronome 128))
-    (ambi-player metro (metro)))
+    ;;(ambi-player metro (metro)))
+    (ambi-loop metro (metro)))
   (stop)
   )
