@@ -31,39 +31,6 @@
     ))
 ;; (player sequencer-metro (sequencer-metro) nil)
 
-(defn laserplayer [metro beat]
-  (let [dur (/ 60.0 (metro :bpm))]      ; 15bars
-    (at (metro beat)
-        (laserbeam :pan (- (rand 2.0) 1.0) :freq (+ (rand-int 1000) 100) :dur 0.25))
-    (at (metro (+ beat 0.25))
-        (laserbeam :pan (- (rand 2.0) 1.0) :freq (+ (rand-int 1000) 100) :dur 0.25))
-    (at (metro (+ beat 0.5))
-        (laserbeam :pan (- (rand 2.0) 1.0) :freq (+ (rand-int 1000) 100) :dur 0.25))
-    (at (metro (+ beat 0.75))
-        (laserbeam :pan (- (rand 2.0) 1.0) :freq (+ (rand-int 1000) 100) :dur 0.25))
-    (apply-by (metro (inc beat)) #'laserplayer [sequencer-metro (inc beat)])
-    ))
-;; (laserplayer sequencer-metro (sequencer-metro))
-;; (stop)
-
-(def latchbell-arg (atom {:rate 100 :amp 0.4 :max 5}))
-(defn latchbellplayer [metro beat]
-  (let [dur (/ 60.0 (metro :bpm))]
-    (at (metro beat)
-        (latchbell :rate (:rate @latchbell-arg) :amp (:amp @latchbell-arg) :time-scale-max (:max @latchbell-arg)))
-    (at (metro (+ beat 0.25))
-        (latchbell :rate (:rate @latchbell-arg) :amp (:amp @latchbell-arg) :time-scale-max (:max @latchbell-arg)))
-    (at (metro (+ beat 0.5))
-        (latchbell :rate (:rate @latchbell-arg) :amp (:amp @latchbell-arg) :time-scale-max (:max @latchbell-arg)))
-    (at (metro (+ beat 0.75))
-        (latchbell :rate (:rate @latchbell-arg) :amp (:amp @latchbell-arg) :time-scale-max (:max @latchbell-arg)))
-    (apply-by (metro (inc beat)) #'latchbellplayer [sequencer-metro  (inc beat)])
-    ))
-;; (init-latchbell-mod (:rate @latchbell-arg))
-
-;; (latchbellplayer sequencer-metro (sequencer-metro))
-;; (stop)
-
 (comment
   (inst-fx! latchbell fx-chorus)
   (inst-fx! latchbell fx-distortion2)
@@ -123,14 +90,31 @@
   (reset! *beats beats)
   (stop))
 
-(def fn-beats {ambi-rand (vec (repeat 16 1))})
+(defn rand-laser []
+  (let [dur (/ 60.0 (sequencer-metro :bpm))]
+    (laserbeam :pan (- (rand 2.0) 1.0) :freq (+ (rand-int 1000) 100) :dur 0.25)))
+
+(def latchbell-arg (atom {:rate 100 :amp 0.4 :max 5}))
+(init-latchbell-mod (:rate @latchbell-arg))
+(defn rand-latchbell []
+  (let [dur (/ 60.0 (sequencer-metro :bpm))]
+        (latchbell :rate (:rate @latchbell-arg) :amp (:amp @latchbell-arg) :time-scale-max (:max @latchbell-arg))))
+
+(def fn-beats {ambi-rand [_]
+               ;;ambi-rand (vec (repeat 16 1))
+               rand-laser (vec (repeat 16 1))
+               rand-latchbell (vec (repeat 16 1))})
 (def *fn-beats (atom fn-beats))
 (comment
   (start-live-fn-sequencer (sequencer-metro (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern))) (* 1 beat-per-pattern) *fn-beats "fn-beats")
   ;;(live-fn-sequencer (now) 4 *fn-beats "fn-beats")
+  (swap! *fn-beats assoc ambi-rand [_])
   (swap! *fn-beats assoc ambi-rand [1 _ 1 _ 1 _ 1 _ 1 _ 1 _ 1 _ 1 _])
   (swap! *fn-beats assoc ambi-rand [[1 _ _ [1 1]] [(vec (repeat 8 1)) _ _ 1] [_ _ 1 _] [(vec (repeat 8 1)) _ _ [1 1 1]]])
   (swap! *fn-beats assoc ambi-rand (vec (repeat 16 1)))
+  (swap! *fn-beats assoc rand-laser (vec (repeat 16 1)))
+  (swap! *fn-beats assoc rand-latchbell (vec (repeat 16 1)))
+
   (apply-by (sequencer-metro (- (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern)) 1/256))
             #'stop-live-sequencer ["fn-beats"])
   (println @*fn-beats)
