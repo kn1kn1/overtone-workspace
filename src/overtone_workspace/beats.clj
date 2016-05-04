@@ -8,7 +8,38 @@
 (def kick (sample "resources/kick.wav"))
 ;; (kick)
 
-;; (ambi-loop sequencer-metro (sequencer-metro))
+;; SynthDef (\fmchord01, {|freq=440, amp=0.2, dur=2|
+;;                        var index_env, amp_env, out;
+;;                        index_env = EnvGen.ar (Env.perc (0.0001, 0.2, 1, -4));
+;;                        amp_env = EnvGen.ar (Env.perc (0.0001, 1, dur, -4), doneAction:2);
+;;                        out = PMOsc.ar (freq, freq * 1.02, (index_env * 2)) * amp_env;
+;;                        out = FreeVerb.ar (out.dup, 0.5, 0.8, 0.9);
+;;                        Out.ar (0, out * amp);
+;;                        }).add;
+(definst fmchord01 [freq 440 amp 0.2 dur 2]
+  (let [index-env (env-gen (perc 0.0001 0.2 1 -4))
+        amp-env (env-gen (perc 0.0001 1 dur -4) :action FREE)
+        snd (pm-osc freq (* freq 1.02) (* index-env 2))
+        reverb (free-verb (* snd amp-env) 0.5 0.8 0.9)]
+    (pan2 (* amp reverb))))
+;;(fmchord01)
+
+(def logistics-scale (scale :C2 :minor-pentatonic (range 1 15)))
+(def logistics-r 3.8)
+(defn logistics-loop [metro beat x]
+  (let [idx (Math/floor (* x (count logistics-scale)))
+        note (nth logistics-scale idx)
+        freq (midi->hz note)
+        dur (* 2/8 (/ 60.0 (metro :bpm)))
+        next-beat (+ 2/8 beat)
+        next-x (* logistics-r x (- 1 x))] ;; x = r * x * (1 - x)
+    (if (< 0 (rand-int 3))
+      (at (metro beat)
+          (fmchord01 :freq freq :dur dur :amp 1)))
+    (apply-by (metro next-beat) #'logistics-loop [metro next-beat next-x])))
+
+;; (logistics-loop sequencer-metro (sequencer-metro) 0.1)
+;; (stop)
 
 (volume (/ 25 127))
 
@@ -103,7 +134,8 @@
 (def fn-beats {ambi-rand [_]
                ;;ambi-rand (vec (repeat 16 1))
                rand-laser (vec (repeat 16 1))
-               rand-latchbell (vec (repeat 16 1))})
+               ;;rand-latchbell (vec (repeat 16 1))
+               })
 (def *fn-beats (atom fn-beats))
 (comment
   (start-live-fn-sequencer (sequencer-metro (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern))) (* 1 beat-per-pattern) *fn-beats "fn-beats")
@@ -113,7 +145,8 @@
   (swap! *fn-beats assoc ambi-rand [[1 _ _ [1 1]] [(vec (repeat 8 1)) _ _ 1] [_ _ 1 _] [(vec (repeat 8 1)) _ _ [1 1 1]]])
   (swap! *fn-beats assoc ambi-rand (vec (repeat 16 1)))
   (swap! *fn-beats assoc rand-laser (vec (repeat 16 1)))
-  (swap! *fn-beats assoc rand-latchbell (vec (repeat 16 1)))
+  (swap! *fn-beats assoc rand-latchbell (vec (repeat 8 1)))
+  (swap! *fn-beats assoc rand-latchbell [_])
 
   (apply-by (sequencer-metro (- (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern)) 1/256))
             #'stop-live-sequencer ["fn-beats"])
