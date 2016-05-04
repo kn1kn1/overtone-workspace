@@ -1,9 +1,7 @@
 (ns overtone-workspace.beats
   (:use [overtone.live]
-        [overtone-workspace sequencer]
-        [overtone-workspace ambi-rand]
+        [overtone-workspace sequencer ambi-rand]
         [overtone-workspace.synth grumbles laserbeam latchbell]))
-
 
 (def kick (sample "resources/kick.wav"))
 ;; (kick)
@@ -30,15 +28,47 @@
   (let [idx (Math/floor (* x (count logistics-scale)))
         note (nth logistics-scale idx)
         freq (midi->hz note)
-        dur (* 2/8 (/ 60.0 (metro :bpm)))
+        dur (* (rand) 4/8 (/ 60.0 (metro :bpm)))
         next-beat (+ 2/8 beat)
         next-x (* logistics-r x (- 1 x))] ;; x = r * x * (1 - x)
     (if (< 0 (rand-int 3))
       (at (metro beat)
-          (fmchord01 :freq freq :dur dur :amp 1)))
+          (fmchord01 :freq freq :dur dur :amp (+ 4 (rand 2)))))
     (apply-by (metro next-beat) #'logistics-loop [metro next-beat next-x])))
-
 ;; (logistics-loop sequencer-metro (sequencer-metro) 0.1)
+;; (stop)
+
+(def chord-chain-dict {:I   [:ii :iii :IV :V :vi :vii]
+                       :ii  [:V :vii]
+                       :iii [:IV :vi]
+                       :IV  [:ii :V :vii]
+                       :V   [:vi :I]
+                       :vi  [:ii :IV :V]
+                       :vii [:I]
+                       })
+(def MAJORDEGREE {:I     :i
+                  :II    :ii
+                  :III   :iii
+                  :IV    :iv
+                  :V     :v
+                  :VI    :vi
+                  :VII   :vii
+                  :_     nil})
+(defn markov-loop [metro beat dict deg]
+  (let [mi (deg DEGREE)
+        sc (if mi :minor :major)
+        d (if mi deg (deg MAJORDEGREE))
+        notes (chord-degree d :C3 sc)
+        dur (+ 12/8 (* (rand) 12/8 (/ 60.0 (metro :bpm))))
+        next-beat (+ 12/8 beat)
+        next-deg (choose (deg dict))]
+    (at (metro beat)
+        (doseq [n notes]
+          (let [freq (midi->hz n)]
+            (fmchord01 :freq freq :dur dur :amp 0.4))))
+    (apply-by (metro next-beat) #'markov-loop [metro next-beat dict next-deg])))
+;; (markov-loop sequencer-metro (sequencer-metro) chord-chain-dict :I)
+;; (chord-degree :i :c4 :major)
 ;; (stop)
 
 (volume (/ 25 127))
@@ -75,10 +105,10 @@
   (inst-fx! laserbeam fx-chorus)
   (clear-fx laserbeam))
 
-
 (def _ 0)
 (def beats {laserbeam [1 _ _ _ _ _ _ 1 _ _ 1 _ _ _ _ 1]
-            latchbell [1 _ 1 _ 1 _ 1 _ 1 _ 1 _ 1 _ _ 1]})
+            ;;latchbell [1 _ 1 _ 1 _ 1 _ 1 _ 1 _ 1 _ _ 1]
+            })
 ;; (def beats {laserbeam [1 _ _ _ _ _ _ 1 _ _ 1 _ _ _ _ 1]})
 (def *beats (atom beats))
 
@@ -108,7 +138,7 @@
 
   (init-latchbell-mod (:rate @latchbell-arg))
   (swap! *beats assoc laserbeam [d _ _ [d d] (vec (repeat 64 0.8)) _ _ d _ _ d _ b _ _ [d d d]])
-  (swap! *beats assoc laserbeam [_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _])
+  (swap! *beats assoc laserbeam [_])
   (swap! *beats assoc latchbell [a _ a _ a _ a _ a _ a _ a _ a _])
   (swap! *beats assoc latchbell [_])
   (swap! *beats assoc laserbeam [d _ _ _ b _ _ d _ _ d _ b _ _ d])
@@ -116,10 +146,12 @@
   (swap! *beats assoc grumble [g _ _ _ _ _ _ _ _  _ _ _ _ _ _ _])
   (swap! *beats assoc kick [[1 _ _ [1 1]] [_ _ _ 1] [_ _ 1 _] [_ _ _ [1 1 1]]])
   (swap! *beats assoc kick [_])
+  (swap! *beats dissoc kick)
   (stop-live-sequencer "beats")
 
   (reset! *beats beats)
   (stop))
+;;(volume 1.0)
 
 (defn rand-laser []
   (let [dur (/ 60.0 (sequencer-metro :bpm))]
@@ -129,7 +161,7 @@
 (init-latchbell-mod (:rate @latchbell-arg))
 (defn rand-latchbell []
   (let [dur (/ 60.0 (sequencer-metro :bpm))]
-        (latchbell :rate (:rate @latchbell-arg) :amp (:amp @latchbell-arg) :time-scale-max (:max @latchbell-arg))))
+    (latchbell :rate (:rate @latchbell-arg) :amp (:amp @latchbell-arg) :time-scale-max (:max @latchbell-arg))))
 
 (def fn-beats {ambi-rand [_]
                ;;ambi-rand (vec (repeat 16 1))
