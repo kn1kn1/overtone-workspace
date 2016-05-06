@@ -1,6 +1,6 @@
 (ns overtone-workspace.beats
   (:use [overtone.live]
-        [overtone-workspace sequencer ambi-rand]
+        [overtone-workspace sequencer ambi-rand prob-beats]
         [overtone-workspace.synth grumbles laserbeam latchbell]))
 
 (def kick (sample "resources/kick.wav"))
@@ -33,8 +33,9 @@
         next-x (* logistics-r x (- 1 x))] ;; x = r * x * (1 - x)
     (if (< 0 (rand-int 3))
       (at (metro beat)
-          (fmchord01 :freq freq :dur dur :amp (+ 4 (rand 2)))))
-    (apply-by (metro next-beat) #'logistics-loop [metro next-beat next-x])))
+          (fmchord01 :freq freq :dur dur :amp (+ 5 (rand 2)))))
+    (apply-by (metro next-beat) #'logistics-loop [metro next-beat next-x])
+    ))
 ;; (logistics-loop sequencer-metro (sequencer-metro) 0.1)
 ;; (stop)
 
@@ -65,8 +66,9 @@
     (at (metro beat)
         (doseq [n notes]
           (let [freq (midi->hz n)]
-            (fmchord01 :freq freq :dur dur :amp 0.4))))
-    (apply-by (metro next-beat) #'markov-loop [metro next-beat dict next-deg])))
+            (fmchord01 :freq freq :dur dur :amp 0.3))))
+    (apply-by (metro next-beat) #'markov-loop [metro next-beat dict next-deg])
+    ))
 ;; (markov-loop sequencer-metro (sequencer-metro) chord-chain-dict :I)
 ;; (chord-degree :i :c4 :major)
 ;; (stop)
@@ -138,14 +140,17 @@
 
   (init-latchbell-mod (:rate @latchbell-arg))
   (swap! *beats assoc laserbeam [d _ _ [d d] (vec (repeat 64 0.8)) _ _ d _ _ d _ b _ _ [d d d]])
-  (swap! *beats assoc laserbeam [_])
+  (do
+    (swap! *beats assoc laserbeam [_])
+    (swap! *beats assoc latchbell [_])
+    (swap! *beats16 assoc laserbeam [_]))
   (swap! *beats assoc latchbell [a _ a _ a _ a _ a _ a _ a _ a _])
-  (swap! *beats assoc latchbell [_])
   (swap! *beats assoc laserbeam [d _ _ _ b _ _ d _ _ d _ b _ _ d])
   (swap! *beats assoc laserbeam [d c c c b c c d c c d c b c c d])
+  (swap! *beats assoc laserbeam (vec (repeat 16 c)))
   (swap! *beats assoc grumble [g _ _ _ _ _ _ _ _  _ _ _ _ _ _ _])
   (swap! *beats assoc kick [[1 _ _ [1 1]] [_ _ _ 1] [_ _ 1 _] [_ _ _ [1 1 1]]])
-  (swap! *beats assoc kick [_])
+  (swap! *beats assoc kick [1])
   (swap! *beats dissoc kick)
   (stop-live-sequencer "beats")
 
@@ -165,7 +170,8 @@
 
 (def fn-beats {ambi-rand [_]
                ;;ambi-rand (vec (repeat 16 1))
-               rand-laser (vec (repeat 16 1))
+               rand-laser [_]
+               ;;rand-laser (vec (repeat 16 1))
                ;;rand-latchbell (vec (repeat 16 1))
                })
 (def *fn-beats (atom fn-beats))
@@ -177,8 +183,20 @@
   (swap! *fn-beats assoc ambi-rand [[1 _ _ [1 1]] [(vec (repeat 8 1)) _ _ 1] [_ _ 1 _] [(vec (repeat 8 1)) _ _ [1 1 1]]])
   (swap! *fn-beats assoc ambi-rand (vec (repeat 16 1)))
   (swap! *fn-beats assoc rand-laser (vec (repeat 16 1)))
+  (swap! *fn-beats assoc rand-laser [_])
   (swap! *fn-beats assoc rand-latchbell (vec (repeat 8 1)))
   (swap! *fn-beats assoc rand-latchbell [_])
+  (do
+    ;; prob-beats
+    (swap! *fn-beats assoc prob-kick (take 32 (cycle [10 0 2 0 6 0 2 0 3 0 6 0 1.1 0 2 4])))
+    (swap! *fn-beats assoc prob-sd (take 32 (cycle [0 0 1.1 0 1.1 0 6 0 6 0 1.1 0 1.1 0 6 0])))
+    (swap! *fn-beats assoc prob-hat (take 32 (cycle [10 2 8 2 1 2])))
+    (swap! *fn-beats assoc prob-openhh (take 32 (cycle [0 0 0 0 5 0 0 0 0 0 0 0 0 0 5 0]))))
+  (do
+    (swap! *fn-beats assoc prob-kick [_])
+    (swap! *fn-beats assoc prob-sd [_])
+    (swap! *fn-beats assoc prob-hat [_])
+    (swap! *fn-beats assoc prob-openhh [_]))
 
   (apply-by (sequencer-metro (- (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern)) 1/256))
             #'stop-live-sequencer ["fn-beats"])
@@ -211,6 +229,7 @@
   (update-bpm 128)
   (start-live-sequencer (sequencer-metro (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern))) (* 16 beat-per-pattern) *beats16 "beats16")
   (print @*live-sequencer-states)
+  (swap! *beats16 assoc laserbeam [_])
   (stop-live-sequencer "beats16")
   (swap! *live-sequencer-states assoc "hoge" false)
   (apply-by (sequencer-metro (- (next-beat (sequencer-metro) 0 (* 16 beat-per-pattern)) 1/256))

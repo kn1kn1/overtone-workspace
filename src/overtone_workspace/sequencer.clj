@@ -18,6 +18,12 @@
   [m]
   (reduce (fn [r [arg val]] (cons arg (cons val r))) [] m))
 
+(defn- flatten2
+  "Takes a map and returns a seq of all the values:
+        (flatten1 {:a 1 :b 2 :c 3}) ;=> (2 3 1)"
+  [m]
+  (reduce (fn [r [arg val]] (cons val r)) [] m))
+
 (defn- normalise-beat-info
   [beat]
   (cond
@@ -25,7 +31,7 @@
     (= 1 beat)         {}
     (map? beat)        beat
     (sequential? beat) beat
-    :else              {}))
+    :else              {:else beat}))
 
 (defn- schedule-pattern
   [curr-t pat-dur sound pattern]
@@ -47,7 +53,7 @@
             beat-info (normalise-beat-info beat-info)]
         (if (sequential? beat-info)
           (schedule-fn-pattern beat-t beat-sep-t sound beat-info)
-          (when beat-info (apply-at beat-t sound (vec (flatten1 beat-info)))))))))
+          (when beat-info (apply-at beat-t sound (vec (flatten2 beat-info)))))))))
 
 (def live-sequencer-states {})
 (def *live-sequencer-states (atom live-sequencer-states))
