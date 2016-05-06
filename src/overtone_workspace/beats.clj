@@ -24,18 +24,23 @@
 
 (def logistics-scale (scale :C2 :minor-pentatonic (range 1 15)))
 (def logistics-r 3.8)
-(defn logistics-loop [metro beat x]
-  (let [idx (Math/floor (* x (count logistics-scale)))
-        note (nth logistics-scale idx)
-        freq (midi->hz note)
-        dur (* (rand) 4/8 (/ 60.0 (metro :bpm)))
-        next-beat (+ 2/8 beat)
-        next-x (* logistics-r x (- 1 x))] ;; x = r * x * (1 - x)
-    (if (< 0 (rand-int 3))
-      (at (metro beat)
-          (fmchord01 :freq freq :dur dur :amp (+ 5 (rand 2)))))
-    (apply-by (metro next-beat) #'logistics-loop [metro next-beat next-x])
-    ))
+(do
+  ;;(inst-fx! fmchord01 fx-echo)
+    (defn logistics-loop [metro beat x]
+      (let [idx (Math/floor (* x (count logistics-scale)))
+            note (nth logistics-scale idx)
+            freq (midi->hz note)
+            dur (* (rand) 4/8 (/ 60.0 (metro :bpm)))
+            next-beat (+ 2/8 beat)
+            next-x (* logistics-r x (- 1 x))] ;; x = r * x * (1 - x)
+        (if (< 0 (rand-int 3))
+          (at (metro beat)
+              (fmchord01 :freq freq :dur dur :amp (+ 5 (rand 2)))))
+        (apply-by (metro next-beat) #'logistics-loop [metro next-beat next-x])
+        )))
+
+;;(inst-fx! fmchord01 fx-echo)
+;;(clear-fx fmchord01)
 ;; (logistics-loop sequencer-metro (sequencer-metro) 0.1)
 ;; (stop)
 
