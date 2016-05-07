@@ -16,7 +16,7 @@
 ;;                        }).add;
 (definst fmchord01 [freq 440 amp 0.2 dur 2]
   (let [index-env (env-gen (perc 0.0001 0.2 1 -4))
-        amp-env (env-gen (perc 0.0001 1 dur -4) :action FREE)
+        amp-env (env-gen (perc 0.0001 dur 1 -4) :action FREE)
         snd (pm-osc freq (* freq 1.02) (* index-env 2))
         reverb (free-verb (* snd amp-env) 0.5 0.8 0.9)]
     (pan2 (* amp reverb))))
@@ -30,12 +30,12 @@
       (let [idx (Math/floor (* x (count logistics-scale)))
             note (nth logistics-scale idx)
             freq (midi->hz note)
-            dur (* (rand) 4/8 (/ 60.0 (metro :bpm)))
+            dur (* 4/8 (/ 60.0 (metro :bpm)))
             next-beat (+ 2/8 beat)
             next-x (* logistics-r x (- 1 x))] ;; x = r * x * (1 - x)
         (if (< 0 (rand-int 3))
           (at (metro beat)
-              (fmchord01 :freq freq :dur dur :amp (+ 5 (rand 2)))))
+              (fmchord01 :freq freq :dur dur :amp (+ 3 (rand 1)))))
         (apply-by (metro next-beat) #'logistics-loop [metro next-beat next-x])
         )))
 
@@ -71,14 +71,36 @@
     (at (metro beat)
         (doseq [n notes]
           (let [freq (midi->hz n)]
-            (fmchord01 :freq freq :dur dur :amp 0.3))))
+            (fmchord01 :freq freq :dur dur :amp 1.0))))
     (apply-by (metro next-beat) #'markov-loop [metro next-beat dict next-deg])
     ))
-;; (markov-loop sequencer-metro (sequencer-metro) chord-chain-dict :I)
+(defn markov-pat-loop [metro beat dict deg]
+  (let [mi (deg DEGREE)
+        sc (if mi :minor :major)
+        d (if mi deg (deg MAJORDEGREE))
+        notes (chord-degree d :C3 sc)
+        dur (* 6 (/ 60.0 (metro :bpm)))
+        next-beat (+ 4 beat)
+        next-deg (choose (deg dict))]
+    (doseq [[idx n] (map-indexed vector (take 3 notes))]
+      (at (metro (+ (* idx 1/2) beat))
+          (let [freq (midi->hz n)]
+            (fmchord01 :freq freq :dur dur :amp 1.0))
+          ))
+    (apply-by (metro next-beat) #'markov-pat-loop [metro next-beat dict next-deg])
+    ))
+(comment
+  (do
+    (logistics-loop sequencer-metro (sequencer-metro) 0.1)
+    (markov-loop sequencer-metro (sequencer-metro) chord-chain-dict :I)
+    (markov-pat-loop sequencer-metro (sequencer-metro) chord-chain-dict :I))
+  (stop))
+
+;; (markov-pat-loop sequencer-metro (sequencer-metro) chord-chain-dict :I)
 ;; (chord-degree :i :c4 :major)
 ;; (stop)
 
-(volume (/ 25 127))
+(volume (/ 50 127))
 
 (defn player [metro beat rates]
   (let [rates (if (empty? rates)
@@ -127,7 +149,7 @@
 (def d {:amp 5.0 :dur 0.25})
 (def g {:freq-mul 1})
 
-(volume 0.25)
+;;(volume 0.25)
 (sequencer-metro :bpm)
 
 (def beat-per-pattern 4)
