@@ -162,6 +162,10 @@
             #'init-latchbell-mod [(:rate @latchbell-arg)])
   (apply-by (sequencer-metro (- (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern)) 1/256))
             #'swap! [*beats assoc laserbeam [d _ _ [_ d d] (vec (repeat 64 0.5)) _ _ d _ _ d _ b _ _ [d d d]]])
+  (apply-by (sequencer-metro (- (next-beat (sequencer-metro) 0 (* 4 beat-per-pattern)) 1/256))
+            swap! *beats assoc laserbeam [d _ _ [_ d d] (vec (repeat 64 0.5)) _ _ d _ _ d _ b _ _ [d d d]] [])
+  (apply-by (sequencer-metro (- (next-beat (sequencer-metro) 0 (* 4 beat-per-pattern)) 1/256))
+            swap! *beats assoc laserbeam [d _ _ _ b _ _ d _ _ d _ b _ _ d] [])
   (apply-by (sequencer-metro (- (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern)) 1/256))
             #'swap! [*beats assoc latchbell (vec (repeat 24 a))])
 
@@ -173,7 +177,6 @@
     (swap! *beats16 assoc laserbeam [_]))
   (swap! *beats assoc latchbell [a _ a _ a _ a _ a _ a _ a _ a _])
   (swap! *beats assoc latchbell [a a  a  a [a a a]])
-  (swap! *beats assoc laserbeam [d _ _ _ b _ _ d _ _ d _ b _ _ d])
   (swap! *beats assoc laserbeam [d c c c b c c d c c d c b c c d])
   (swap! *beats assoc laserbeam (take 16 (cycle [d b c d c b [d] c c [c c c] d])))
   (swap! *beats assoc laserbeam (vec (repeat 16 c)))
