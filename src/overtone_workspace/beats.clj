@@ -30,7 +30,7 @@
       (let [idx (Math/floor (* x (count logistics-scale)))
             note (nth logistics-scale idx)
             freq (midi->hz note)
-            dur (* 4/8 (/ 60.0 (metro :bpm)))
+            dur (* 1 4/8 (/ 60.0 (metro :bpm)))
             next-beat (+ 2/8 beat)
             next-x (* logistics-r x (- 1 x))] ;; x = r * x * (1 - x)
         (if (< 0 (rand-int 3))
@@ -179,6 +179,7 @@
   (swap! *beats assoc latchbell [a a  a  a [a a a]])
   (swap! *beats assoc laserbeam [d c c c b c c d c c d c b c c d])
   (swap! *beats assoc laserbeam (take 16 (cycle [d b c d c b [d] c c [c c c] d])))
+  (swap! *beats assoc laserbeam (take 16 (cycle [b [d d] [c c c c c] d [d d]])))
   (swap! *beats assoc laserbeam (vec (repeat 16 c)))
   (swap! *beats assoc grumble [g _ _ _ _ _ _ _ _  _ _ _ _ _ _ _])
   (swap! *beats assoc kick [[1 _ _ [1 1]] [_ _ _ 1] [_ _ 1 _] [_ _ _ [1 1 1]]])
@@ -209,6 +210,7 @@
 (def *fn-beats (atom fn-beats))
 (comment
   (start-live-fn-sequencer (sequencer-metro (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern))) (* 1 beat-per-pattern) *fn-beats "fn-beats")
+  (stop-live-sequencer "fn-beats")
   ;;(live-fn-sequencer (now) 4 *fn-beats "fn-beats")
   (swap! *fn-beats assoc ambi-rand [_])
   (swap! *fn-beats assoc ambi-rand [1 _ 1 _ 1 _ 1 _ 1 _ 1 _ 1 _ 1 _])
@@ -217,6 +219,7 @@
   (swap! *fn-beats assoc rand-laser (vec (repeat 16 1)))
   (swap! *fn-beats assoc rand-laser [_])
   (swap! *fn-beats assoc rand-latchbell (vec (repeat 8 1)))
+  (swap! *fn-beats assoc rand-latchbell (vec (repeat 16 1)))
   (swap! *fn-beats assoc rand-latchbell [_])
   (do
     ;; prob-beats
@@ -224,6 +227,10 @@
     (swap! *fn-beats assoc prob-sd (take 32 (cycle [0 0 1.1 0 1.1 0 6 0 6 0 1.1 0 1.1 0 6 0])))
     (swap! *fn-beats assoc prob-hat (take 32 (cycle [10 2 8 2 1 2])))
     (swap! *fn-beats assoc prob-openhh (take 32 (cycle [0 0 0 0 5 0 0 0 0 0 0 0 0 0 5 0]))))
+  (swap! *fn-beats assoc prob-openhh [10])
+  (swap! *fn-beats assoc prob-kick [10])
+  (swap! *fn-beats assoc prob-sd [[[0] [10 _ _ [8]] ] [0 10]])
+
   (do
     (swap! *fn-beats assoc prob-kick [_])
     (swap! *fn-beats assoc prob-sd [_])
