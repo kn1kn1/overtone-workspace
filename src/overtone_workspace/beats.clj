@@ -221,8 +221,17 @@
   (swap! *fn-beats assoc rand-latchbell (vec (repeat 8 1)))
   (swap! *fn-beats assoc rand-latchbell (vec (repeat 16 1)))
   (swap! *fn-beats assoc rand-latchbell [_])
+
+  (let
+    [fnrep 128]
+    (swap! *fn-beats assoc ambi-rand (vec (repeat fnrep 1)))
+    (swap! *fn-beats assoc prob-kick (vec (repeat fnrep 0.6)))
+    (swap! *fn-beats assoc prob-sd (vec (repeat fnrep 0.6)))
+    (swap! *fn-beats assoc prob-hat (vec (repeat fnrep 0.4)))
+    (swap! *fn-beats assoc prob-openhh (vec (repeat fnrep 0.4))))
   (do
     ;; prob-beats
+    (swap! *fn-beats assoc ambi-rand (vec (repeat 32 1)))
     (swap! *fn-beats assoc prob-kick (take 32 (cycle [10 0 2 0 6 0 2 0 3 0 6 0 1.1 0 2 4])))
     (swap! *fn-beats assoc prob-sd (take 32 (cycle [0 0 1.1 0 1.1 0 6 0 6 0 1.1 0 1.1 0 6 0])))
     (swap! *fn-beats assoc prob-hat (take 32 (cycle [10 2 8 2 1 2])))
