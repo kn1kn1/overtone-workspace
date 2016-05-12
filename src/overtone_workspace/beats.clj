@@ -1,6 +1,6 @@
 (ns overtone-workspace.beats
   (:use [overtone.live]
-        [overtone-workspace sequencer ambi-rand prob-beats]
+        [overtone-workspace sequencer util ambi-rand prob-beats]
         [overtone-workspace.synth grumbles laserbeam latchbell]))
 
 (def kick (sample "resources/kick.wav"))
@@ -242,6 +242,10 @@
     (swap! *fn-beats assoc prob-kick [9])
     (swap! *fn-beats assoc prob-hat (take 16 (cycle [10 2 8 2 1 2])))
     (swap! *fn-beats assoc prob-sd [[[0] [10 _ _ [8]] ] [0 10]]))
+
+  (fadein-master 0.6)
+  (fadeout-master 0.6)
+
   (do
     (swap! *fn-beats assoc ambi-rand (vec (repeat 32 1)))
     (swap! *fn-beats assoc prob-kick [_])

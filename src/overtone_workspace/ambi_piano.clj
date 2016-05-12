@@ -1,5 +1,6 @@
 (ns overtone-workspace.ambi-pano
-  (:use [overtone.live]))
+  (:use [overtone.live]
+    [overtone-workspace util]))
 
 ;; https://twitter.com/kn1kn1/status/624227547660726272
 ;; loop{use_bpm 70;sample:ambi_piano,sustain:0.25,rate:pitch_to_ratio([-5,-2,0,3].choose)*[1,2,4].choose*[1,-1].choose,start:rand;sleep 0.25}
@@ -26,10 +27,16 @@
     (at (metro beat) (ambpf start rate (/ dur 2)))
     (apply-by (metro next-beat) ambpf-player metro next-beat [])))
 
+;;(volume 0)
+
 (comment
   (do
-    (volume 0.6)
+    ;;(volume 0.6)
+    ;;(fadein-master)
+    (fadein-master 0.6)
+    ;;(fadein-master 0.0 0.6 1/64)
     (def metro (metronome 128))
     (ambpf-player metro (metro)))
+  (fadeout-master)
   (stop)
   )
