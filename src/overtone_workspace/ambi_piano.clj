@@ -37,6 +37,7 @@
     ;;(fadein-master 0.0 0.6 1/64)
     (def metro (metronome 128))
     (ambpf-player metro (metro)))
-  (fadeout-master)
+   (volume)
+  (fadeout-master 0.6)
   (stop)
   )

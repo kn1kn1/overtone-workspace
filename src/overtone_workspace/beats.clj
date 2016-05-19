@@ -174,7 +174,9 @@
   (do
     (swap! *beats assoc laserbeam [_])
     (swap! *beats assoc latchbell [_])
-    (swap! *beats16 assoc laserbeam [_]))
+    (swap! *beats16 assoc laserbeam [_])
+    (swap! *beats assoc kick [_]))
+  (fadeout-master 0.6)
   (swap! *beats assoc latchbell [a _ a _ a _ a _ a _ a _ a _ a _])
   (swap! *beats assoc latchbell [a a  a  a [a a a]])
   (swap! *beats assoc laserbeam [d c c c b c c d c c d c b c c d])
@@ -243,8 +245,11 @@
     (swap! *fn-beats assoc prob-hat (take 16 (cycle [10 2 8 2 1 2])))
     (swap! *fn-beats assoc prob-sd [[[0] [10 _ _ [8]] ] [0 10]]))
 
+  (volume 0.6)
   (fadein-master 0.6)
+  (volume)
   (fadeout-master 0.6)
+  (stop)
 
   (do
     (swap! *fn-beats assoc ambi-rand (vec (repeat 32 1)))
@@ -256,8 +261,7 @@
   (apply-by (sequencer-metro (- (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern)) 1/256))
             #'stop-live-sequencer ["fn-beats"])
   (println @*fn-beats)
-  (stop)
-  )
+  (stop))
 
 (def beats16 {laserbeam [
                          [[d _ d _] [b _ _ _] [_ d 1 _] [[b _] [1 1 1]]]
