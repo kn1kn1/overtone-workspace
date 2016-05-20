@@ -255,6 +255,7 @@
     ;;(swap! *fn-beats assoc rand-latchbell [_])
     ;;(swap! *fn-beats assoc rand-laser [_])
     (swap! *fn-beats assoc ambi-rand (vec (repeat 16 1)))
+    ;;(swap! *fn-beats assoc ambi-rand (take 64 (cycle [1 0 1 0 1 1])))
     ;;(swap! *fn-beats assoc ambi-rand (vec (repeat 1 _)))
     (swap! *fn-beats assoc prob-kick (take 32 (cycle [10 0 2 0 6 0 2 0 3 0 6 0 1.1 0 2 4])))
     (swap! *fn-beats assoc prob-sd (take 32 (cycle [0 0 1.1 0 1.1 0 6 0 6 0 1.1 0 1.1 0 6 0])))
