@@ -31,6 +31,7 @@
             note (nth logistics-scale idx)
             freq (midi->hz note)
             dur (* 1 4/8 (/ 60.0 (metro :bpm)))
+            ;;dur (* 60 4/8 (/ 60.0 (metro :bpm)))
             next-beat (+ 2/8 beat)
             next-x (* logistics-r x (- 1 x))] ;; x = r * x * (1 - x)
         (if (< 0 (rand-int 3))
@@ -38,7 +39,7 @@
               (fmchord01 :freq freq :dur dur :amp (+ 3 (rand 1)))))
         (apply-by (metro next-beat) #'logistics-loop [metro next-beat next-x])
         )))
-
+(stop)
 ;;(inst-fx! fmchord01 fx-echo)
 ;;(clear-fx fmchord01)
 ;; (logistics-loop sequencer-metro (sequencer-metro) 0.1)
@@ -135,7 +136,7 @@
   (clear-fx laserbeam))
 
 (def _ 0)
-(def beats {laserbeam [1 _ _ _ _ _ _ 1 _ _ 1 _ _ _ _ 1]
+(def beats {;;laserbeam [1 _ _ _ _ _ _ 1 _ _ 1 _ _ _ _ 1]
             ;;latchbell [1 _ 1 _ 1 _ 1 _ 1 _ 1 _ 1 _ _ 1]
             })
 ;; (def beats {laserbeam [1 _ _ _ _ _ _ 1 _ _ 1 _ _ _ _ 1]})
@@ -170,25 +171,41 @@
             #'swap! [*beats assoc latchbell (vec (repeat 24 a))])
 
   (init-latchbell-mod (:rate @latchbell-arg))
-  (swap! *beats assoc laserbeam [d _ _ [d d] (vec (repeat 64 0.8)) _ _ d _ _ d _ b _ _ [d d d]])
+
+
+  (fadeout-master 0.6)
+
+  (swap! *beats assoc latchbell [a a  a  a [a a a]])
+
+  (swap! *beats assoc latchbell [a _ a _ a _ a _ a _ a _ a _ a _])
+  (swap! *beats assoc kick [[1 _ _ _] [_ _ _ _] [_ 1 1 _] [_ _ _ _]])
+  (swap! *beats assoc laserbeam [d c c c b c c d c c d c b c c d])
+
+  (start-live-sequencer (sequencer-metro (next-beat (sequencer-metro) 0 (* 8 beat-per-pattern))) (* 16 beat-per-pattern) *beats16 "beats16")
+
+  (do
+    (reset! *beats16 beats16)
+    (swap! *beats assoc kick [[1 _ _ [1 1]] [_ _ _ 1] [_ _ 1 _] [_ _ _ [1 1 1]]])
+    (swap! *beats assoc laserbeam [d _ _ [d d] (vec (repeat 64 0.8)) _ _ d _ _ d _ b _ _ [d d d]]))
+
   (do
     (swap! *beats assoc laserbeam [_])
     (swap! *beats assoc latchbell [_])
     (swap! *beats16 assoc laserbeam [_])
     (swap! *beats assoc kick [_]))
-  (fadeout-master 0.6)
-  (swap! *beats assoc latchbell [a _ a _ a _ a _ a _ a _ a _ a _])
-  (swap! *beats assoc latchbell [a a  a  a [a a a]])
-  (swap! *beats assoc laserbeam [d c c c b c c d c c d c b c c d])
+
+  (swap! *beats assoc laserbeam (take 16 (cycle [d c c])))
+  ;;(swap! *beats assoc laserbeam (vec (repeat 16 c)))
+  (swap! *beats assoc kick [(vec (repeat 4 1))])
+
   (swap! *beats assoc laserbeam (take 16 (cycle [d b c [d d] c b [d d] c [c c c]])))
   (swap! *beats assoc laserbeam (take 16 (cycle [b [d d] [c c c c c] d [d d]])))
-  (swap! *beats assoc laserbeam (take 16 (cycle [d c c])))
-  (swap! *beats assoc laserbeam (vec (repeat 16 c)))
-  (swap! *beats assoc grumble [g _ _ _ _ _ _ _ _  _ _ _ _ _ _ _])
-  (swap! *beats assoc kick [[1 _ _ [1 1]] [_ _ _ 1] [_ _ 1 _] [_ _ _ [1 1 1]]])
+  (grumble )
+
   (swap! *beats assoc kick [1])
   (swap! *beats dissoc kick)
   (stop-live-sequencer "beats")
+  (print *beats)
 
   (reset! *beats beats)
   (stop))
@@ -226,9 +243,9 @@
 
   (reset! *fn-beats fn-beats)
   (let
-      [fnrep 1]
-    (swap! *fn-beats assoc rand-laser (vec (repeat (/ fnrep 1) 1)))
-    (swap! *fn-beats assoc rand-latchbell (vec (repeat (/ fnrep 1) 1)))
+      [fnrep 32]
+    ;;(swap! *fn-beats assoc rand-laser (vec (repeat (/ fnrep 1) 1)))
+    ;;(swap! *fn-beats assoc rand-latchbell (vec (repeat (/ fnrep 1) 1)))
     (swap! *fn-beats assoc ambi-rand (vec (repeat (/ fnrep 1) 1)))
     (swap! *fn-beats assoc prob-kick (vec (repeat fnrep 0.6)))
     (swap! *fn-beats assoc prob-sd (vec (repeat fnrep 0.6)))
@@ -245,8 +262,8 @@
     (swap! *fn-beats assoc prob-openhh (take 32 (cycle [0 0 0 0 5 0 0 0 0 0 0 0 0 0 5 0]))))
   (reset! *fn-beats fn-beats)
   (do
-    ;;(swap! *fn-beats assoc rand-latchbell [_])
-    ;;(swap! *fn-beats assoc rand-laser [_])
+    (swap! *fn-beats assoc rand-latchbell [_])
+    (swap! *fn-beats assoc rand-laser [_])
     (swap! *fn-beats assoc ambi-rand (vec (repeat 16 1)))
     (swap! *fn-beats assoc prob-openhh [7])
     (swap! *fn-beats assoc prob-kick [9])
@@ -305,6 +322,7 @@
   (print @*live-sequencer-states)
   (swap! *beats16 assoc laserbeam [_])
   (stop-live-sequencer "beats16")
+  (stop-live-sequencer "beats")
   (swap! *live-sequencer-states assoc "hoge" false)
   (apply-by (sequencer-metro (- (next-beat (sequencer-metro) 0 (* 16 beat-per-pattern)) 1/256))
             #'update-bpm [144])
