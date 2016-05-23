@@ -1,4 +1,4 @@
-(ns overtone-workspace.prob-beats
+(ns overtone-workspace.fn.prob-beats
   (:use [overtone.live]))
 
 (def kick-sample (sample "resources/kick.wav"))

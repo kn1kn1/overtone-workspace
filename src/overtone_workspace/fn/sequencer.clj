@@ -1,4 +1,4 @@
-(ns overtone-workspace.sequencer
+(ns overtone-workspace.fn.sequencer
   (:use [overtone.live]))
 
 (def *sequencer-bpm (atom 128))
@@ -113,14 +113,14 @@
      uid
      )))
 
- (defn start-live-fn-sequencer
-   ([curr-t beats-per-pat live-patterns] (let [uid (trig-id)] (start-live-fn-sequencer curr-t beats-per-pat live-patterns uid)))
-   ([curr-t beats-per-pat live-patterns uid]
-    (do
-      (swap! *live-sequencer-states assoc uid true)
-      (live-fn-sequencer curr-t beats-per-pat live-patterns uid)
-      uid
-      )))
+(defn start-live-fn-sequencer
+  ([curr-t beats-per-pat live-patterns] (let [uid (trig-id)] (start-live-fn-sequencer curr-t beats-per-pat live-patterns uid)))
+  ([curr-t beats-per-pat live-patterns uid]
+   (do
+     (swap! *live-sequencer-states assoc uid true)
+     (live-fn-sequencer curr-t beats-per-pat live-patterns uid)
+     uid
+     )))
 
 (defn stop-live-sequencer
   [uid]

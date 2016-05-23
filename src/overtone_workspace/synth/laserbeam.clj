@@ -48,3 +48,8 @@
 ;;(stop)
 ;; (laserbeam)
 ;; (laserbeam :freq 500 :armp 0.2 :dur 1)
+
+;; (inst-fx! laserbeam fx-distortion2)
+;; (inst-fx! laserbeam fx-distortion-tubescreamer)
+;; (inst-fx! laserbeam fx-chorus)
+;; (clear-fx laserbeam)

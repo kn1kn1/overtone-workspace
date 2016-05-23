@@ -1,4 +1,4 @@
-(ns overtone-workspace.util
+(ns overtone-workspace.fn.util
   (:use [overtone.live]
         [mud.core  :only (n-overtime!)]))
 

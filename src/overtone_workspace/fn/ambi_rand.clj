@@ -1,4 +1,4 @@
-(ns overtone-workspace.ambi-rand
+(ns overtone-workspace.fn.ambi-rand
   (:use [overtone.live]))
 
 (def ambi-piano-b (load-sample "resources/ambi_piano.wav"))

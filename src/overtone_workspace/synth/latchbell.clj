@@ -55,6 +55,10 @@
 ;;(stop)
 ;; (latchbell)
 
+;; (inst-fx! latchbell fx-chorus)
+;; (inst-fx! latchbell fx-distortion2)
+;; (clear-fx latchbell
+
 ;;(mod-latchbell-rate)
 ;;(mod-latchbell-midi)
 ;;(mod-latchbell-idx)
