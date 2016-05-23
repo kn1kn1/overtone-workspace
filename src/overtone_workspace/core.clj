@@ -2,9 +2,9 @@
   (:require [quil.core :as q]
             [quil.middleware :as m])
   (:use [quil-layer layer layers]
-        [quil-layer.layers fadeout-layer layer-example2]
+        [quil-layer.layers fadeout-layer layer-example2 ]
         ;;[overtone-workspace.layers vol-circles-layer]
-        [overtone-workspace.layers layer-example background-layer lines-layer]
+        [overtone-workspace.layers layer-example background-layer lines-layer text equilibrium]
         )
   )
 
@@ -62,6 +62,24 @@
       (setup-layer layer)
       (add-layer layer)))
   (remove-layer lines-layer)
+  )
+
+(comment
+  (do
+    (def text-layer (->TextLayer (atom {})))
+    (let [layer text-layer]
+      (setup-layer layer)
+      (add-layer layer)))
+  (remove-layer text-layer)
+  )
+
+(comment
+  (do
+    (def eq-layer (->EquilibriumLayer (atom {})))
+    (let [layer eq-layer]
+      (setup-layer layer)
+      (add-layer layer)))
+  (remove-layer eq-layer)
   )
 
 (comment
