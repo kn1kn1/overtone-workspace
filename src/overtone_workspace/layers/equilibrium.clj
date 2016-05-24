@@ -179,7 +179,7 @@
   [points x y]
   (for [ind (range (count points))
         :let [p (points ind)]
-        :when (< (q/dist (:x p) (:y p) x y) 10)]
+        :when (< (q/dist (:x p) (:y p) x y) 100)]
     ind))
 
 (defn draw-equidistance
@@ -215,14 +215,9 @@
     (draw-point p))
   ; (doseq [ind (find-points points (q/mouse-x) (q/mouse-y))]
   ;   (draw-equidistance points (points ind))))
-  ; (if (< (rand-int 30) 1)
-  ;   (doseq [ind (find-points points (rand-int 1000) (rand-int 500))]
-  ;     (draw-equidistance points (points ind)))))
-  ; (if (< (rand-int 30) 1)
-  ;   (doseq [ind (find-points points 500 500)]
-  ;     (println ind)
-  ;     (draw-equidistance points (points ind)))))
-  )
+   (if (< (rand-int 30) 15)
+    (doseq [ind (find-points points (rand-int (q/width)) (rand-int (q/width)))]
+      (draw-equidistance points (points ind)))))
 
 ;;;
 ;;; User interaction

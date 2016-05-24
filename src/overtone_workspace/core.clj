@@ -113,3 +113,24 @@
   ;; Check quil wiki for more info about middlewares and particularly
   ;; fun-mode.
   :middleware [m/fun-mode])
+
+(do
+  (def bglayer (->BackgroundLayer (atom {})))
+  (let [layer bglayer]
+    (setup-layer layer)
+    ;; (reset! oneoff-fn #(do (q/color-mode :hsb) (q/background 255 155 155)))
+    ;; (reset! oneoff-fn #(do (q/color-mode :hsb) (q/background 100 100 100)))
+    ;; (reset! bg-alpha 10)
+    (add-layer layer)))
+
+; (do
+;   (def lines-layer (->LinesLayer (atom {})))
+;   (let [layer lines-layer]
+;     (setup-layer layer)
+;     (add-layer layer)))
+
+(do
+  (def eq-layer (->EquilibriumLayer (atom {})))
+  (let [layer eq-layer]
+    (setup-layer layer)
+    (add-layer layer)))
