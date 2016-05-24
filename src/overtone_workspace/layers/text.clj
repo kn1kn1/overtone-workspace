@@ -14,8 +14,7 @@
 
 (defn- update-state [state]
   ; Update sketch state by changing circle color and position.
-  {:color (mod (+ (:color state) 0.7) 255)
-   :angle (+ (:angle state) 0.1)})
+  {:angle (+ (:angle state) 0.01)})
 
 (defn- draw-state [state]
   ; Clear the sketch by filling it with light-grey color.
@@ -34,12 +33,15 @@
   ;     (q/ellipse x y 100 100)))
 
   (q/color-mode :rgb)
-  (q/fill (- 255 80))
+  ;;(q/fill (- 255 80))
+  ;;(q/fill (- 255 10))
+  (q/fill  (+ 100 (* 25 (q/sin (:angle state)))))
   (q/text-size 320)
   ;;(q/text "clj as art" 10 320)
   (q/text "clj as art" 10 (- (q/height) 100))
   ; Draw the circle.
   ;;(q/ellipse 0 0 (* 2 (:color state)) (* 2 (:color state)))
+
   )
 
 (defrecord TextLayer [state]

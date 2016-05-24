@@ -112,8 +112,8 @@
 ;     (setup-layer layer)
 ;     (add-layer layer)))
 
-(do
-  (def eq-layer (->EquilibriumLayer (atom {})))
-  (let [layer eq-layer]
-    (setup-layer layer)
-    (add-layer layer)))
+; (do
+;   (def eq-layer (->EquilibriumLayer (atom {})))
+;   (let [layer eq-layer]
+;     (setup-layer layer)
+;     (add-layer layer)))
