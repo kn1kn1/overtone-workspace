@@ -27,7 +27,7 @@
     (let [idx (Math/floor (* x (count logistics-scale)))
           note (nth logistics-scale idx)
           freq (midi->hz note)
-          dur (* 60 4/8 (/ 60.0 (metro :bpm)))
+          dur (* 1 4/8 (/ 60.0 (metro :bpm)))
           ;;dur (* 60 4/8 (/ 60.0 (metro :bpm)))
           next-beat (+ 2/8 beat)
           next-x (* logistics-r x (- 1 x))] ;; x = r * x * (1 - x)
