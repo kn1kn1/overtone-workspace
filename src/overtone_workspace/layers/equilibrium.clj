@@ -12,7 +12,7 @@
 ;;; Constants
 ;;;
 
-(def speed 3)
+(def speed 5)
 (def eps 1)
 
 ;;;
@@ -61,9 +61,12 @@
   [size]
   (let [angle (rand q/TWO-PI)
         cur-speed (rand speed)]
-      {:x (rand-int size)
-       :y (rand-int size)
-       :velocity ((juxt q/cos q/sin) cur-speed)}))
+    {:x (rand-int size)
+     :y (rand-int size)
+     :velocity ((juxt q/cos q/sin) cur-speed)
+     :r (+ 55 (rand-int 200))
+     :g (+ 55 (rand-int 200))
+     :b (+ 55 (rand-int 200))}))
 
 (defn generate-points
   "Generates n points with leaders assigned. size is size of the sketch."
@@ -75,29 +78,29 @@
 
 
 (defn- setup []
-  ; ; Set frame rate to 30 frames per second.
-  ; (q/frame-rate 30)
-  ; ; Set color mode to HSB (HSV) instead of default RGB.
-  ; (q/color-mode :hsb)
-  ; setup function returns initial state. It contains
-  ; circle color and position.
+  ;; ; Set frame rate to 30 frames per second.
+  ;; (q/frame-rate 30)
+  ;; ;; Set color mode to HSB (HSV) instead of default RGB.
+  ;; (q/color-mode :hsb)
+  ;; setup function returns initial state. It contains
+  ;; circle color and position.
   {
-    :running? false
+   :running? false
    })
 
-; (defn- setup
-;   "Standard quil function which sets up a sketch and returns initial state."
-;   []
-;   (q/frame-rate 30)
-;   (let [size (q/width)
-;         n (int (q/map-range size
-;                             200 500
-;                             15 25))]
-;    {:points (generate-points n size)
-;     :running? true
-;     :dragging nil
-;     :n n
-;     :size size}))
+;; (defn- setup
+;;   "Standard quil function which sets up a sketch and returns initial state."
+;;   []
+;;   (q/frame-rate 30)
+;;   (let [size (q/width)
+;;         n (int (q/map-range size
+;;                             200 500
+;;                             15 25))]
+;;    {:points (generate-points n size)
+;;     :running? true
+;;     :dragging nil
+;;     :n n
+;;     :size size}))
 
 ;;;
 ;;; Update logic
@@ -161,18 +164,20 @@
           n (int (q/map-range size
                               200 500
                               15 25))]
-     {:points (generate-points n size)
-      :running? true
-      :dragging nil
-      :n n
-      :size size})))
+      {:points (generate-points n size)
+       :running? true
+       :dragging nil
+       :n n
+       :size size})))
 
 ;;;
 ;;; Draw
 ;;;
 
 (defn draw-point [p]
-  (q/point (:x p) (:y p)))
+  (do
+    (q/stroke (:r p) (:g p) (:b p))
+    (q/point (:x p) (:y p))))
 
 (defn find-points
   "Finds all points in 10-pixel approximity of point (x,y)."
@@ -197,47 +202,26 @@
     (q/stroke 255 0 0)
     (draw-point p1)
     (draw-point p2)
-    (q/stroke-weight 1)
+    (q/stroke-weight 5) ;; CHANGE THIS to tweak line width!
     (q/line (+ mx a) (+ my b) (- mx a) (- my b))))
 
 (defn- draw-state
   "Draws sketch state."
   [{:keys [points] :as state}]
   ;;(q/background 250)
-  ; Use different point size depending on
-  ; screen size.
+  ;; Use different point size depending on
+  ;; screen size.
   (let [weight (q/map-range (:size state)
                             200 500
-                            7 10)]
+                            20 40)] ;; CHANGE THIS to tweak circle size!
     (q/stroke-weight weight))
-  (q/stroke 0)
   (doseq [p points]
     (draw-point p))
-  ; (doseq [ind (find-points points (q/mouse-x) (q/mouse-y))]
-  ;   (draw-equidistance points (points ind))))
-   (if (< (rand-int 30) 15)
+  ;; (doseq [ind (find-points points (q/mouse-x) (q/mouse-y))]
+  ;;   (draw-equidistance points (points ind))))
+  (if (< (rand-int 30) 15)
     (doseq [ind (find-points points (rand-int (q/width)) (rand-int (q/width)))]
       (draw-equidistance points (points ind)))))
-
-;;;
-;;; User interaction
-;;;
-
-(defn mouse-dragged
-  "Drags the selected point (if any). Sets coordinates of the selected
-  point to be equals to the current mouse position."
-  [state event]
-  (if-let [ind (:dragging state)]
-    (update-in state [:points ind] merge (select-keys event [:x :y]))
-    state))
-
-(defn mouse-pressed
-  "Selects a point for dragging. Adds the point index to the state."
-  [state event]
-  (let [ind (-> (:points state)
-                (find-points (:x event) (:y event))
-                first)]
-    (assoc state :dragging ind)))
 
 (defn regenerate-points
   "Regenerates points in the state map."
@@ -245,44 +229,22 @@
   (assoc state :points
          (generate-points (:n state) (:size state))))
 
-(defn change-n
-  "Updates n - number of points. fn is a function using which n is updated,
-  either inc or dec. Regenerates points after that."
-  [state fn]
-  (-> state
-      (update-in [:n] #(max 3 (fn %)))
-      regenerate-points))
-
-(defn key-pressed
-  "Process key event.
-  r - regenerate points
-  m,l - increase/decrease number of points and regenerate them
-  space - pause sketch"
-  [state event]
-  (condp = (:key event)
-    :r (regenerate-points state)
-    :up (change-n state inc)
-    :down (change-n state dec)
-    (keyword " ") (update-in state [:running?] not)
-    state))
-
-
 (defrecord EquilibriumLayer [state]
   Layer
   (setup-layer-state [this]
-                     (setup))
+    (setup))
   (update-layer-state [this state]
-                      (update-state state))
+    (update-state state))
   (draw-layer-state [this state]
-                    (draw-state state)))
+    (draw-state state)))
 
-; (q/defsketch equilibrium
-;     :host "host"
-;     :size [500 500]
-;     :setup setup
-;     :update update-state
-;     :draw draw-state
-;     :mouse-pressed mouse-pressed
-;     :mouse-dragged mouse-dragged
-;     :key-pressed key-pressed
-;     :middleware [m/fun-mode])
+;; (q/defsketch equilibrium
+;;     :host "host"
+;;     :size [500 500]
+;;     :setup setup
+;;     :update update-state
+;;     :draw draw-state
+;;     :mouse-pressed mouse-pressed
+;;     :mouse-dragged mouse-dragged
+;;     :key-pressed key-pressed
+;;     :middleware [m/fun-mode])
