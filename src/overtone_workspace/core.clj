@@ -2,9 +2,9 @@
   (:require [quil.core :as q]
             [quil.middleware :as m])
   (:use [quil-layer layer layers]
-        [quil-layer.layers fadeout-layer layer-example2 ]
+        [quil-layer.layers fadeout-layer]
         ;;[overtone-workspace.layers vol-circles-layer]
-        [overtone-workspace.layers layer-example background-layer lines-layer text equilibrium]
+        [overtone-workspace.layers background-layer lines-layer text equilibrium]
         )
   )
 
@@ -35,24 +35,6 @@
       ;; (reset! bg-alpha 10)
       (add-layer layer)))
   (remove-layer bglayer)
-  )
-
-(comment
-  (do
-    (def layerex (->LayerExample (atom {})))
-    (let [layer layerex]
-      (setup-layer layer)
-      (add-layer layer)))
-  (remove-layer layerex)
-  )
-
-(comment
-  (do
-    (def layerex2 (->LayerExample2 (atom {})))
-    (let [layer layerex2]
-      (setup-layer layer)
-      (add-layer layer)))
-  (remove-layer layerex2)
   )
 
 (comment
@@ -119,6 +101,7 @@
   (let [layer bglayer]
     (setup-layer layer)
     ;; (reset! oneoff-fn #(do (q/color-mode :hsb) (q/background 255 155 155)))
+    ;; (reset! oneoff-fn #(do (q/color-mode :hsb 100) (q/background 0 0 100)))
     ;; (reset! oneoff-fn #(do (q/color-mode :hsb) (q/background 100 100 100)))
     ;; (reset! bg-alpha 10)
     (add-layer layer)))

@@ -64,9 +64,12 @@
     {:x (rand-int size)
      :y (rand-int size)
      :velocity ((juxt q/cos q/sin) cur-speed)
-     :r (+ 55 (rand-int 200))
-     :g (+ 55 (rand-int 200))
-     :b (+ 55 (rand-int 200))}))
+    ;  :r (+ 55 (rand-int 200))
+    ;  :g (+ 55 (rand-int 200))
+    ;  :b (+ 55 (rand-int 200))}))
+     :r (rand-int 255)
+     :g (rand-int 255)
+     :b (rand-int 255)}))
 
 (defn generate-points
   "Generates n points with leaders assigned. size is size of the sketch."
@@ -176,8 +179,10 @@
 
 (defn draw-point [p]
   (do
+    (q/color-mode :rgb)
     (q/stroke (:r p) (:g p) (:b p))
-    (q/point (:x p) (:y p))))
+    (q/point (:x p) (:y p))
+    (q/color-mode :hsb)))
 
 (defn find-points
   "Finds all points in 10-pixel approximity of point (x,y)."
