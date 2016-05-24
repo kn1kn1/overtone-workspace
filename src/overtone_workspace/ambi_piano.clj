@@ -33,6 +33,7 @@
   (do
     ;;(volume 0.6)
     ;;(fadein-master)
+    (volume 0)
     (fadein-master 0.6)
     ;;(fadein-master 0.0 0.6 1/64)
     (def metro (metronome 128))

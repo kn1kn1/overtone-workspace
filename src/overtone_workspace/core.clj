@@ -61,6 +61,7 @@
     (let [layer lines-layer]
       (setup-layer layer)
       (add-layer layer)))
+   (reset! num-of-lines 5)
   (remove-layer lines-layer)
   )
 
