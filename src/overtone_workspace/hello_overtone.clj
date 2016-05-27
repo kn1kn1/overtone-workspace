@@ -1,4 +1,4 @@
-(ns overtone-workspace.overtone101)
+(ns overtone-workspace.hello-overtone)
 
 ;;;;;;
 ;; Clojure
